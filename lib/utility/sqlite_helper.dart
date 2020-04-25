@@ -4,12 +4,13 @@ import 'package:path/path.dart';
 
 class SQLiteHelper {
   // Field
-  String nameDatabase = 'foodDatabase.db';
+  String nameDatabase = 'foodData.db';
   String tableDatabase = 'orderTABLE';
   int versionDatabase = 1;
   String idColumn = 'id';
   String idFood = 'idFood';
   String idShop = 'idShop';
+  String nameShop = 'nameShop';
   String nameFood = 'nameFood';
   String urlFood = 'urlFood';
   String priceFood = 'priceFood';
@@ -24,7 +25,7 @@ class SQLiteHelper {
     await openDatabase(join(await getDatabasesPath(), nameDatabase),
         onCreate: (Database database, int version) {
       return database.execute(
-          'CREATE TABLE $tableDatabase ($idColumn INTEGER PRIMARY KEY, $idFood TEXT, $idShop TEXT, $nameFood TEXT, $urlFood TEXT, $priceFood TEXT, $amountFood TEXT)');
+          'CREATE TABLE $tableDatabase ($idColumn INTEGER PRIMARY KEY, $idFood TEXT, $idShop TEXT, $nameShop TEXT, $nameFood TEXT, $urlFood TEXT, $priceFood TEXT, $amountFood TEXT)');
     }, version: versionDatabase);
   }
 
@@ -71,6 +72,7 @@ class SQLiteHelper {
     Database database = await connectedDatabase();
     try {
       await database.delete(tableDatabase, where: '$idColumn = $id');
+      // await database.delete(tableDatabase);
     } catch (e) {
       print('e delete ==>> ${e.toString()}');
     }

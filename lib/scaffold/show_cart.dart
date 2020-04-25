@@ -11,6 +11,8 @@ class ShowCart extends StatefulWidget {
 class _ShowCartState extends State<ShowCart> {
   // Filed
   List<OrderModel> orderModels = List();
+  List<String> nameShops = List();
+  int totalPrice = 0, totalDelivery = 0;
 
   // Method
   @override
@@ -20,12 +22,21 @@ class _ShowCartState extends State<ShowCart> {
   }
 
   Future<void> readSQLite() async {
+    if (orderModels.length != 0) {
+      orderModels.clear();
+      totalPrice = 0;
+    }
+
     try {
       var object = await SQLiteHelper().readDatabase();
       print("object length ==>> ${object.length}");
       if (object.length != 0) {
         setState(() {
           orderModels = object;
+          for (var model in orderModels) {
+            totalPrice = totalPrice +
+                (int.parse(model.priceFood) * int.parse(model.amountFood));
+          }
         });
       }
     } catch (e) {
@@ -104,7 +115,8 @@ class _ShowCartState extends State<ShowCart> {
           child: Column(
             children: <Widget>[
               showSum('ค่าขอส่ง', 'aa', MyStyle().lightColor),
-              showSum('รวมราคา', 'aa', MyStyle().dartColor),
+              showSum('ค่าอาหาร', totalPrice.toString(), MyStyle().primaryColor),
+              showSum('รวมราคา', totalPrice.toString(), MyStyle().dartColor),
             ],
           ),
         ),
@@ -127,9 +139,27 @@ class _ShowCartState extends State<ShowCart> {
                         children: <Widget>[
                           Expanded(
                             flex: 3,
-                            child: Text(
-                              orderModels[index].nameFood,
-                              style: MyStyle().h2NormalStyle,
+                            child: Container(
+                              child: Column(
+                                children: <Widget>[
+                                  Row(
+                                    children: <Widget>[
+                                      Text(
+                                        orderModels[index].nameFood,
+                                        style: MyStyle().h2NormalStyle,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: <Widget>[
+                                      Text(
+                                        orderModels[index].nameShop,
+                                        style: MyStyle().h3StylePrimary,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           Expanded(
@@ -205,15 +235,18 @@ class _ShowCartState extends State<ShowCart> {
   }
 
   Future<void> processDelete(int id) async {
-    await SQLiteHelper().deleteSQLiteWhereId(id).then((value) {setState(() {
-      readSQLite();
-    });});
+    await SQLiteHelper().deleteSQLiteWhereId(id).then((value) {
+      setState(() {
+        readSQLite();
+      });
+    });
   }
 
   String calculateTotal(String price, String amount) {
     int princtInt = int.parse(price);
     int amountInt = int.parse(amount);
     int total = princtInt * amountInt;
+
     return total.toString();
   }
 

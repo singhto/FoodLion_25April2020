@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/food_model.dart';
 import 'package:foodlion/models/order_model.dart';
+import 'package:foodlion/utility/my_api.dart';
 import 'package:foodlion/utility/my_style.dart';
 import 'package:foodlion/utility/normal_dialog.dart';
 import 'package:foodlion/utility/sqlite_helper.dart';
@@ -18,7 +19,7 @@ class _ShowFoodState extends State<ShowFood> {
   // Field
   FoodModel foodModel;
   int amountFood = 1;
-  String idShop, idUser, idFood, nameFood, urlFood, priceFood;
+  String idShop, idUser, idFood, nameshop, nameFood, urlFood, priceFood;
 
   // Method
   @override
@@ -31,6 +32,7 @@ class _ShowFoodState extends State<ShowFood> {
   Future<void> setupVariable() async {
     idShop = foodModel.idShop;
     idFood = foodModel.id;
+    nameshop = await MyAPI().findNameShopWhere(idShop);
     nameFood = foodModel.nameFood;
     urlFood = foodModel.urlFood;
     priceFood = foodModel.priceFood;
@@ -150,10 +152,11 @@ class _ShowFoodState extends State<ShowFood> {
                   context, 'ยังไม่ได้ Login', 'กรุณา Login ก่อน Order คะ');
             } else {
               print(
-                  'idFood=$idFood, idShop=$idShop, nameFood=$nameFood, urlFood=$urlFood, priceFood=$priceFood, amountFood=$amountFood');
+                  'idFood=$idFood, idShop=$idShop,nameShop=$nameshop, nameFood=$nameFood, urlFood=$urlFood, priceFood=$priceFood, amountFood=$amountFood');
               OrderModel model = OrderModel(
                 idFood: idFood,
                 idShop: idShop,
+                nameShop: nameshop,
                 nameFood: nameFood,
                 urlFood: urlFood,
                 priceFood: priceFood,

@@ -2,6 +2,7 @@ class OrderModel {
   int id;
   String idFood;
   String idShop;
+  String nameShop;
   String nameFood;
   String urlFood;
   String priceFood;
@@ -11,6 +12,7 @@ class OrderModel {
       {this.id,
       this.idFood,
       this.idShop,
+      this.nameShop,
       this.nameFood,
       this.urlFood,
       this.priceFood,
@@ -20,6 +22,7 @@ class OrderModel {
     id = json['id'];
     idFood = json['idFood'];
     idShop = json['idShop'];
+    nameShop = json['nameShop'];
     nameFood = json['nameFood'];
     urlFood = json['urlFood'];
     priceFood = json['priceFood'];
@@ -31,6 +34,7 @@ class OrderModel {
     data['id'] = this.id;
     data['idFood'] = this.idFood;
     data['idShop'] = this.idShop;
+    data['nameShop'] = this.nameShop;
     data['nameFood'] = this.nameFood;
     data['urlFood'] = this.urlFood;
     data['priceFood'] = this.priceFood;
