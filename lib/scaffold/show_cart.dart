@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/order_model.dart';
+import 'package:foodlion/utility/my_api.dart';
 import 'package:foodlion/utility/my_style.dart';
 import 'package:foodlion/utility/sqlite_helper.dart';
 
@@ -13,6 +14,7 @@ class _ShowCartState extends State<ShowCart> {
   List<OrderModel> orderModels = List();
   List<String> nameShops = List();
   int totalPrice = 0, totalDelivery = 0;
+  List<double> transports = List();
 
   // Method
   @override
@@ -27,20 +29,54 @@ class _ShowCartState extends State<ShowCart> {
       totalPrice = 0;
     }
 
+    List<double> location1 = [13.673452, 100.606735];
+    List<double> location2 = [13.665821, 100.644286];
+
+    int indexOld = 0;
+
     try {
       var object = await SQLiteHelper().readDatabase();
       print("object length ==>> ${object.length}");
       if (object.length != 0) {
         setState(() {
           orderModels = object;
+
           for (var model in orderModels) {
             totalPrice = totalPrice +
                 (int.parse(model.priceFood) * int.parse(model.amountFood));
+
+            int index = int.parse(model.idShop);
+            if (index != indexOld) {
+              indexOld = index;
+              print('Work indexOld ===>>> $indexOld');
+
+              double distance = MyAPI().calculateDistance(
+                  location1[0], location1[1], location2[0], location2[1]);
+              print('distance ==>>>>> $distance');
+
+              int distanceAint = distance.toInt();
+              print('distanceAint = $distanceAint');
+
+              int transport = checkTransport(distanceAint);
+              print('transport ===>>> $transport');
+              totalDelivery = totalDelivery + transport;
+            }
           }
         });
       }
     } catch (e) {
       print('e readSQLite ==>> ${e.toString()}');
+    }
+  }
+
+  int checkTransport(int distance){
+    int transport = 0;
+    if (distance <= 5) {
+      transport = distance * 25;
+      return transport;
+    } else {
+      transport = 125 + ((distance-5)*5);
+      return transport;
     }
   }
 
@@ -114,8 +150,9 @@ class _ShowCartState extends State<ShowCart> {
           width: MediaQuery.of(context).size.width * 0.5,
           child: Column(
             children: <Widget>[
-              showSum('ค่าขอส่ง', 'aa', MyStyle().lightColor),
-              showSum('ค่าอาหาร', totalPrice.toString(), MyStyle().primaryColor),
+              showSum('ค่าขอส่ง', totalDelivery.toString(), MyStyle().lightColor),
+              showSum(
+                  'ค่าอาหาร', totalPrice.toString(), MyStyle().primaryColor),
               showSum('รวมราคา', totalPrice.toString(), MyStyle().dartColor),
             ],
           ),
@@ -123,6 +160,8 @@ class _ShowCartState extends State<ShowCart> {
       ],
     );
   }
+
+  
 
   Widget showListCart() {
     return Expanded(
