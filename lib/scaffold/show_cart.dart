@@ -1,8 +1,15 @@
+import 'dart:convert';
+import 'dart:ffi';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/order_model.dart';
+import 'package:foodlion/models/user_model.dart';
+import 'package:foodlion/models/user_shop_model.dart';
 import 'package:foodlion/utility/my_api.dart';
 import 'package:foodlion/utility/my_style.dart';
 import 'package:foodlion/utility/sqlite_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ShowCart extends StatefulWidget {
   @override
@@ -13,69 +20,129 @@ class _ShowCartState extends State<ShowCart> {
   // Filed
   List<OrderModel> orderModels = List();
   List<String> nameShops = List();
-  int totalPrice = 0, totalDelivery = 0;
-  List<double> transports = List();
+  int totalPrice = 0, totalDelivery = 0, sumTotal = 0;
+  List<int> transports = List();
+  List<int> distances = List();
+  List<int> sumTotals = List();
+  double latUser, lngUser;
+  UserModel userModel;
+  UserShopModel userShopModel;
+  List<UserShopModel> userShopModels = List();
+  List<int> idShopOnSQLites = List();
 
   // Method
   @override
   void initState() {
     super.initState();
-    readSQLite();
+    findLocationUser();
+  }
+
+  Future<void> findLocationUser() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String idUser = preferences.getString('id');
+    print('idUser = $idUser');
+
+    String url =
+        'http://movehubs.com/app/getUserWhereId.php?isAdd=true&id=$idUser';
+    Response response = await Dio().get(url);
+    var result = json.decode(response.data);
+    for (var map in result) {
+      // print('map ==> $map');
+      userModel = UserModel.fromJson(map);
+      readSQLite();
+    }
   }
 
   Future<void> readSQLite() async {
     if (orderModels.length != 0) {
       orderModels.clear();
       totalPrice = 0;
+      totalDelivery = 0;
+      sumTotal = 0;
     }
-
-    List<double> location1 = [13.673452, 100.606735];
-    List<double> location2 = [13.665821, 100.644286];
-
-    int indexOld = 0;
 
     try {
       var object = await SQLiteHelper().readDatabase();
-      print("object length ==>> ${object.length}");
+      // print("object length ==>> ${object.length}");
       if (object.length != 0) {
-        setState(() {
-          orderModels = object;
+        orderModels = object;
 
-          for (var model in orderModels) {
-            totalPrice = totalPrice +
-                (int.parse(model.priceFood) * int.parse(model.amountFood));
-
-            int index = int.parse(model.idShop);
-            if (index != indexOld) {
-              indexOld = index;
-              print('Work indexOld ===>>> $indexOld');
-
-              double distance = MyAPI().calculateDistance(
-                  location1[0], location1[1], location2[0], location2[1]);
-              print('distance ==>>>>> $distance');
-
-              int distanceAint = distance.toInt();
-              print('distanceAint = $distanceAint');
-
-              int transport = checkTransport(distanceAint);
-              print('transport ===>>> $transport');
-              totalDelivery = totalDelivery + transport;
-            }
-          }
-        });
+        for (var model in orderModels) {
+          totalPrice = totalPrice +
+              (int.parse(model.priceFood) * int.parse(model.amountFood));
+          findLatLngShop(model);
+          sumTotal = totalPrice;
+        }
       }
     } catch (e) {
       print('e readSQLite ==>> ${e.toString()}');
     }
   }
 
-  int checkTransport(int distance){
+  Future<void> findLatLngShop(OrderModel orderModel) async {
+    Map<String, dynamic> map = Map();
+    map = await MyAPI().findLocationShopWhere(orderModel.idShop);
+    // print('map =====>>>>>>> ${map.toString()}');
+
+    setState(() {
+      userShopModel = UserShopModel.fromJson(map);
+      userShopModels.add(userShopModel);
+
+      double lat1 = double.parse(userModel.lat);
+      double lng1 = double.parse(userModel.lng);
+      double lat2 = double.parse(userShopModel.lat);
+      double lng2 = double.parse(userShopModel.lng);
+
+      // List<double> location1 = [13.673452, 100.606735];
+      // List<double> location2 = [13.665821, 100.644286];
+
+      int indexOld = 0;
+      // int indexLocation = 0;
+      
+      int index = int.parse(orderModel.idShop);
+      if (checkMemberIdShop(index)) {
+        idShopOnSQLites.add(int.parse(orderModel.idShop));
+        indexOld = index;
+        print('Work indexOld ===>>> $indexOld');
+
+        double distance = MyAPI().calculateDistance(lat1, lng1, lat2, lng2);
+        // print('distance ==>>>>> $distance');
+
+        int distanceAint = distance.toInt();
+        // print('distanceAint = $distanceAint');
+        distances.add(distanceAint);
+
+        int transport = checkTransport(distanceAint);
+        print('transport ===>>> $transport');
+        transports.add(transport);
+        sumTotals.add(transport);
+        totalDelivery = totalDelivery + transport;
+        sumTotal = sumTotal + totalDelivery;
+      } else {
+        transports.add(0);
+        distances.add(0);
+      }
+    });
+  }
+
+  bool checkMemberIdShop(int idShop){
+    bool result = true;
+    for (var member in idShopOnSQLites) {
+      if (member == idShop) {
+        result = false;
+        return result;
+      }
+    }
+    return result;
+  }
+
+  int checkTransport(int distance) {
     int transport = 0;
     if (distance <= 5) {
       transport = distance * 25;
       return transport;
     } else {
-      transport = 125 + ((distance-5)*5);
+      transport = 125 + ((distance - 5) * 5);
       return transport;
     }
   }
@@ -150,18 +217,17 @@ class _ShowCartState extends State<ShowCart> {
           width: MediaQuery.of(context).size.width * 0.5,
           child: Column(
             children: <Widget>[
-              showSum('ค่าขอส่ง', totalDelivery.toString(), MyStyle().lightColor),
+              showSum(
+                  'ค่าขอส่ง', totalDelivery.toString(), MyStyle().lightColor),
               showSum(
                   'ค่าอาหาร', totalPrice.toString(), MyStyle().primaryColor),
-              showSum('รวมราคา', totalPrice.toString(), MyStyle().dartColor),
+              showSum('รวมราคา', sumTotal.toString(), MyStyle().dartColor),
             ],
           ),
         ),
       ],
     );
   }
-
-  
 
   Widget showListCart() {
     return Expanded(
@@ -170,75 +236,102 @@ class _ShowCartState extends State<ShowCart> {
         child: Column(
           children: <Widget>[
             headTitle(),
+            Divider(
+              color: MyStyle().dartColor,
+            ),
             Expanded(
               child: ListView.builder(
                   itemCount: orderModels.length,
-                  itemBuilder: (value, index) => Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Expanded(
-                            flex: 3,
-                            child: Container(
+                  itemBuilder: (value, index) => Container(
+                        decoration: BoxDecoration(
+                            color: index % 2 == 0
+                                ? Colors.grey.shade300
+                                : Colors.white),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Expanded(
+                              flex: 3,
+                              child: Container(
+                                child: Column(
+                                  children: <Widget>[
+                                    Row(
+                                      children: <Widget>[
+                                        Text(
+                                          orderModels[index].nameFood,
+                                          style: MyStyle().h2NormalStyle,
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: <Widget>[
+                                        Text(
+                                          orderModels[index].nameShop,
+                                          style: MyStyle().h3StylePrimary,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Text(
+                                orderModels[index].priceFood,
+                                style: MyStyle().h2NormalStyle,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
                               child: Column(
+                                mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
-                                  Row(
-                                    children: <Widget>[
-                                      Text(
-                                        orderModels[index].nameFood,
-                                        style: MyStyle().h2NormalStyle,
-                                      ),
-                                    ],
+                                  Text(
+                                    orderModels[index].amountFood,
+                                    style: MyStyle().h2NormalStyle,
                                   ),
-                                  Row(
-                                    children: <Widget>[
-                                      Text(
-                                        orderModels[index].nameShop,
-                                        style: MyStyle().h3StylePrimary,
-                                      ),
-                                    ],
+                                  Text(
+                                    '${distances[index].toString()} km',
+                                    style: MyStyle().h3StylePrimary,
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Text(
-                              orderModels[index].priceFood,
-                              style: MyStyle().h2NormalStyle,
+                            Expanded(
+                              flex: 1,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Text(
+                                    calculateTotal(orderModels[index].priceFood,
+                                        orderModels[index].amountFood),
+                                    style: MyStyle().h2NormalStyle,
+                                  ),
+                                  Text(
+                                    transports[index].toString(),
+                                    style: MyStyle().h3StylePrimary,
+                                  )
+                                ],
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Text(
-                              orderModels[index].amountFood,
-                              style: MyStyle().h2NormalStyle,
+                            Expanded(
+                              flex: 1,
+                              child: Row(
+                                children: <Widget>[
+                                  IconButton(
+                                      icon: Icon(
+                                        Icons.delete_forever,
+                                        color: MyStyle().dartColor,
+                                      ),
+                                      onPressed: () {
+                                        confirmAnDelete(orderModels[index]);
+                                      }),
+                                ],
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Text(
-                              calculateTotal(orderModels[index].priceFood,
-                                  orderModels[index].amountFood),
-                              style: MyStyle().h2NormalStyle,
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Row(
-                              children: <Widget>[
-                                IconButton(
-                                    icon: Icon(
-                                      Icons.delete_forever,
-                                      color: MyStyle().dartColor,
-                                    ),
-                                    onPressed: () {
-                                      confirmAnDelete(orderModels[index]);
-                                    }),
-                              ],
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       )),
             ),
           ],

@@ -9,12 +9,24 @@ class MyAPI {
     String url =
         'http://movehubs.com/app/getShopWhereId.php?isAdd=true&id=$idShop';
     Response response = await Dio().get(url);
-    print('res find ==> $response');
     var result = json.decode(response.data);
     for (var map in result) {
       string = map['Name'];
     }
     return string;
+  }
+
+  Future<Map<String, dynamic>> findLocationShopWhere(String idShop) async {
+   Map<String, dynamic> myMap = Map();
+    String url =
+        'http://movehubs.com/app/getShopWhereId.php?isAdd=true&id=$idShop';
+    Response response = await Dio().get(url);
+    // print('res find ==> $response');
+    var result = json.decode(response.data);
+    for (var map in result) {
+      myMap = map;
+    }
+    return myMap;
   }
 
   double calculateDistance(
