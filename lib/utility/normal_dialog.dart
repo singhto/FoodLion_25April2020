@@ -14,18 +14,28 @@ Future<void> normalDialog(BuildContext context, String title, String message,
     context: context,
     builder: (value) => AlertDialog(
       title: showTitle(title, icon),
-      content: Text(message, style: MyStyle().h2StylePrimary,),
+      content: Text(
+        message,
+        style: MyStyle().h2StylePrimary,
+      ),
       actions: <Widget>[
         FlatButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text('OK', style: MyStyle().h2Style,),
+          child: Text(
+            'OK',
+            style: MyStyle().h2Style,
+          ),
         ),
       ],
     ),
   );
 }
 
+
 Widget showTitle(String title, Icon icon) => ListTile(
       leading: icon,
-      title: Text(title, style: MyStyle().h2Style,),
+      title: Text(
+        title,
+        style: MyStyle().h2Style,
+      ),
     );

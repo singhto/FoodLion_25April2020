@@ -8,6 +8,7 @@ import 'package:foodlion/models/user_model.dart';
 import 'package:foodlion/models/user_shop_model.dart';
 import 'package:foodlion/utility/my_api.dart';
 import 'package:foodlion/utility/my_style.dart';
+import 'package:foodlion/utility/normal_dialog.dart';
 import 'package:foodlion/utility/sqlite_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -98,7 +99,7 @@ class _ShowCartState extends State<ShowCart> {
 
       int indexOld = 0;
       // int indexLocation = 0;
-      
+
       int index = int.parse(orderModel.idShop);
       if (checkMemberIdShop(index)) {
         idShopOnSQLites.add(int.parse(orderModel.idShop));
@@ -125,7 +126,7 @@ class _ShowCartState extends State<ShowCart> {
     });
   }
 
-  bool checkMemberIdShop(int idShop){
+  bool checkMemberIdShop(int idShop) {
     bool result = true;
     for (var member in idShopOnSQLites) {
       if (member == idShop) {
@@ -178,7 +179,10 @@ class _ShowCartState extends State<ShowCart> {
         width: MediaQuery.of(context).size.width,
         child: RaisedButton.icon(
           color: MyStyle().primaryColor,
-          onPressed: () {},
+          onPressed: () {
+            confirmDialog(
+                context, 'Confirm Order', 'กรุณา Confirm Order ด้วย คะ');
+          },
           icon: Icon(
             Icons.check_box,
             color: Colors.white,
@@ -189,6 +193,52 @@ class _ShowCartState extends State<ShowCart> {
           ),
         ),
       );
+
+  Future<void> confirmDialog(BuildContext context, String title, String message,
+      {Icon icon}) async {
+    if (icon == null) {
+      icon = Icon(
+        Icons.question_answer,
+        size: 36,
+        color: MyStyle().dartColor,
+      );
+    }
+    showDialog(
+      context: context,
+      builder: (value) => AlertDialog(
+        title: showTitle(title, icon),
+        content: Text(
+          message,
+          style: MyStyle().h2StylePrimary,
+        ),
+        actions: <Widget>[
+          FlatButton(
+            onPressed: () {
+              orderThread();
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'Confirm',
+              style: MyStyle().h2Style,
+            ),
+          ),
+          FlatButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'Cancel',
+              style: MyStyle().h2Style,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> orderThread()async{
+    print('orderModels.length ===>>> ${orderModels.length}');
+  }
 
   Widget showSum(String title, String message, Color color) {
     return Container(
