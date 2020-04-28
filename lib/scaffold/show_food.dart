@@ -20,6 +20,8 @@ class _ShowFoodState extends State<ShowFood> {
   FoodModel foodModel;
   int amountFood = 1;
   String idShop, idUser, idFood, nameshop, nameFood, urlFood, priceFood;
+  bool statusShop = false;
+  String nameCurrentShop;
 
   // Method
   @override
@@ -40,6 +42,17 @@ class _ShowFoodState extends State<ShowFood> {
     try {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       idUser = preferences.getString('Login');
+
+      List<OrderModel> orderModels = await SQLiteHelper().readDatabase();
+      if (orderModels.length != 0) {
+        for (var model in orderModels) {
+          nameCurrentShop = model.nameShop;
+          if (idShop != model.idShop) {
+            statusShop = true;
+          }
+        }
+      }
+
     } catch (e) {}
   }
 
@@ -139,12 +152,17 @@ class _ShowFoodState extends State<ShowFood> {
     );
   }
 
+  
+
   Widget addCartButton() {
     return Expanded(
       child: RaisedButton.icon(
           color: MyStyle().primaryColor,
           onPressed: () {
-            if (amountFood == 0) {
+            if (statusShop) {
+              normalDialog(context, 'ไม่สามารถเลือกได้ คะ ?',
+                  'โปรดเลือกอาหาร จาก ร้าน $nameCurrentShop คะ ถ้าต้องการเลือก รายการอาหารนี่ ให้ Confirm Order ก่อนคะ');
+            } else if (amountFood == 0) {
               normalDialog(context, 'ยังไม่มี รายการอาหาร',
                   'กรุณาเพิ่มจำนวน รายการอาหาร');
             } else if (idUser == null) {

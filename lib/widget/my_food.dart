@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/food_model.dart';
+import 'package:foodlion/scaffold/show_cart.dart';
 import 'package:foodlion/scaffold/show_food.dart';
+import 'package:foodlion/utility/my_style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyFood extends StatefulWidget {
@@ -180,8 +182,19 @@ class _MyFoodState extends State<MyFood> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('รายการอาหาร'),),
+      appBar: AppBar(
+        title: Text('รายการอาหาร'),
+        actions: <Widget>[showCart()],
+      ),
       body: statusData ? showNoData() : showListFood(),
     );
   }
+
+  Widget showCart() => GestureDetector(
+        onTap: () {
+          MaterialPageRoute route = MaterialPageRoute(builder: (value)=>ShowCart());
+          Navigator.of(context).push(route);
+        },
+        child: MyStyle().showMyCart(2),
+      );
 }
