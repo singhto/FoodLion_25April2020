@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:foodlion/models/order_model.dart';
 import 'package:foodlion/scaffold/show_cart.dart';
+import 'package:foodlion/utility/sqlite_helper.dart';
 import 'package:foodlion/widget/add_my_food.dart';
 import 'package:foodlion/widget/main_home.dart';
 import 'package:foodlion/widget/my_delivery.dart';
@@ -36,6 +38,8 @@ class _HomeState extends State<Home> {
     MainHome()
   ]; //[GenerLogin, ShopLogin, UserLogin]
 
+  int amount = 0;
+
   // Method
   @override
   void initState() {
@@ -70,6 +74,11 @@ class _HomeState extends State<Home> {
         }
       } else if (modeLogin == 'User') {
         if (!(nameLogin == null || nameLogin.isEmpty)) {
+
+          List<OrderModel> result = await SQLiteHelper().readDatabase();
+          // print('amount #######===>>> ${result.length}');
+          amount = result.length;
+
           setState(() {
             statusLogin = true;
             cuttentWidget = MainHome();
@@ -580,7 +589,7 @@ class _HomeState extends State<Home> {
             onTap: () {
               routeToShowCart();
             },
-            child: MyStyle().showMyCart(3),
+            child: MyStyle().showMyCart(amount),
           )
         : MyStyle().mySizeBox();
   }
@@ -588,7 +597,7 @@ class _HomeState extends State<Home> {
   void routeToShowCart() {
     MaterialPageRoute materialPageRoute =
         MaterialPageRoute(builder: (value) => ShowCart());
-    Navigator.of(context).push(materialPageRoute);
+    Navigator.of(context).push(materialPageRoute).then((value)=>checkLogin());
   }
 
   @override

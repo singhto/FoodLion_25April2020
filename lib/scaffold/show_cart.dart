@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -21,15 +20,18 @@ class _ShowCartState extends State<ShowCart> {
   // Filed
   List<OrderModel> orderModels = List();
   List<String> nameShops = List();
-  int totalPrice = 0, totalDelivery = 0, sumTotal = 0;
+  List<UserShopModel> userShopModels = List();
+  List<int> idShopOnSQLites = List();
   List<int> transports = List();
   List<int> distances = List();
   List<int> sumTotals = List();
+
   double latUser, lngUser;
+
   UserModel userModel;
   UserShopModel userShopModel;
-  List<UserShopModel> userShopModels = List();
-  List<int> idShopOnSQLites = List();
+
+  int totalPrice = 0, totalDelivery = 0, sumTotal = 0;
 
   // Method
   @override
@@ -236,8 +238,34 @@ class _ShowCartState extends State<ShowCart> {
     );
   }
 
-  Future<void> orderThread()async{
-    print('orderModels.length ===>>> ${orderModels.length}');
+  Future<void> orderThread() async {
+    DateTime dateTime = DateTime.now();
+    List<String> idFoods = List();
+    List<String> amountFoods = List();
+
+    for (var model in orderModels) {
+      idFoods.add(model.idFood);
+      amountFoods.add(model.amountFood);
+    }
+
+    print(
+        'idUser = ${userModel.id}, idShop = ${idShopOnSQLites[0]}, dateTime = $dateTime');
+    print('idFoods = ${idFoods.toString()}');
+    print('amountFoods = ${amountFoods.toString()}');
+
+    String url =
+        'http://movehubs.com/app/addOrder.php?isAdd=true&idUser=${userModel.id}&idShop=${idShopOnSQLites[0]}&DateTime=$dateTime&idFoods=${idFoods.toString()}&amountFoods=${amountFoods.toString()}';
+
+    Response response = await Dio().get(url);
+    if (response.toString() == 'true') {
+      print('Success Order');
+      await SQLiteHelper()
+          .deleteSQLiteAll()
+          .then((value) => Navigator.of(context).pop());
+    } else {
+      normalDialog(context, 'มีความผิดปกติ',
+          'กรุณาทิ้งไว้สักครู่ แล้วค่อย Confirm Order ใหม่ คะ');
+    }
   }
 
   Widget showSum(String title, String message, Color color) {

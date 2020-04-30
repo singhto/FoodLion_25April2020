@@ -49,10 +49,10 @@ class SQLiteHelper {
     }
   }
 
-  Future<List<OrderModel>> readDatabase()async{
+  Future<List<OrderModel>> readDatabase() async {
     Database database = await connectedDatabase();
     List<OrderModel> orderModels = List();
-     
+
     try {
       List<Map<String, dynamic>> list = await database.query(tableDatabase);
       for (var map in list) {
@@ -68,7 +68,7 @@ class SQLiteHelper {
     }
   }
 
-  Future<void> deleteSQLiteWhereId(int id)async{
+  Future<void> deleteSQLiteWhereId(int id) async {
     Database database = await connectedDatabase();
     try {
       await database.delete(tableDatabase, where: '$idColumn = $id');
@@ -78,4 +78,12 @@ class SQLiteHelper {
     }
   }
 
+  Future<void> deleteSQLiteAll() async {
+    Database database = await connectedDatabase();
+    try {
+      await database.delete(tableDatabase);
+    } catch (e) {
+      print('e delete ==>> ${e.toString()}');
+    }
+  }
 }

@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/food_model.dart';
+import 'package:foodlion/models/order_model.dart';
 import 'package:foodlion/scaffold/show_cart.dart';
 import 'package:foodlion/scaffold/show_food.dart';
 import 'package:foodlion/utility/my_style.dart';
+import 'package:foodlion/utility/sqlite_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyFood extends StatefulWidget {
@@ -20,6 +22,7 @@ class _MyFoodState extends State<MyFood> {
   bool statusData = true;
   List<FoodModel> foodModels = List();
   String myIdShop;
+  int amount = 0;
 
   // Method
   @override
@@ -27,6 +30,14 @@ class _MyFoodState extends State<MyFood> {
     super.initState();
     myIdShop = widget.idShop;
     readAllFood();
+    checkAmount();
+  }
+
+  Future<void> checkAmount() async {
+    try {
+      List<OrderModel> list = await SQLiteHelper().readDatabase();
+      amount = list.length;
+    } catch (e) {}
   }
 
   Future<String> getIdShop() async {
@@ -84,7 +95,7 @@ class _MyFoodState extends State<MyFood> {
               builder: (value) => ShowFood(
                     foodModel: foodModels[index],
                   ));
-          Navigator.of(context).push(route);
+          Navigator.of(context).push(route).then((value) => checkAmount());
         },
         child: Row(
           children: <Widget>[
@@ -192,9 +203,10 @@ class _MyFoodState extends State<MyFood> {
 
   Widget showCart() => GestureDetector(
         onTap: () {
-          MaterialPageRoute route = MaterialPageRoute(builder: (value)=>ShowCart());
-          Navigator.of(context).push(route);
+          MaterialPageRoute route =
+              MaterialPageRoute(builder: (value) => ShowCart());
+          Navigator.of(context).push(route).then((value) => checkAmount());
         },
-        child: MyStyle().showMyCart(2),
+        child: MyStyle().showMyCart(amount),
       );
 }
