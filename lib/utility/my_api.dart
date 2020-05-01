@@ -2,10 +2,22 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
+import 'package:foodlion/models/food_model.dart';
 
 class MyAPI {
+  int checkTransport(int distance) {
+    int transport = 0;
+    if (distance <= 5) {
+      transport = 25;
+      return transport;
+    } else {
+      transport = 25 + ((distance - 5) * 5);
+      return transport;
+    }
+  }
+
   Future<String> findNameShopWhere(String idShop) async {
-    String string = 'aaa';
+    String string = '';
     String url =
         'http://movehubs.com/app/getShopWhereId.php?isAdd=true&id=$idShop';
     Response response = await Dio().get(url);
@@ -16,8 +28,20 @@ class MyAPI {
     return string;
   }
 
+  Future<FoodModel> findDetailFoodWhereId(String idFood) async {
+    FoodModel foodModel;
+    String url =
+        'http://movehubs.com/app/getFoodWhereId.php?isAdd=true&id=$idFood';
+    Response response = await Dio().get(url);
+    var result = json.decode(response.data);
+    for (var map in result) {
+      foodModel = FoodModel.fromJson(map);
+    }
+    return foodModel;
+  }
+
   Future<Map<String, dynamic>> findLocationShopWhere(String idShop) async {
-   Map<String, dynamic> myMap = Map();
+    Map<String, dynamic> myMap = Map();
     String url =
         'http://movehubs.com/app/getShopWhereId.php?isAdd=true&id=$idShop';
     Response response = await Dio().get(url);
@@ -29,8 +53,7 @@ class MyAPI {
     return myMap;
   }
 
-  double calculateDistance(
-      double lat1, double lng1, double lat2, double lng2) {
+  double calculateDistance(double lat1, double lng1, double lat2, double lng2) {
     double distance = 0;
 
     var p = 0.017453292519943295;

@@ -11,6 +11,7 @@ import 'package:foodlion/widget/order_shop.dart';
 import 'package:foodlion/widget/register_delivery.dart';
 import 'package:foodlion/widget/register_shop.dart';
 import 'package:foodlion/widget/register_user.dart';
+import 'package:foodlion/widget/show_order_user.dart';
 import 'package:foodlion/widget/signin_delivery.dart';
 import 'package:foodlion/widget/signin_shop.dart';
 import 'package:foodlion/widget/signin_user.dart';
@@ -74,7 +75,6 @@ class _HomeState extends State<Home> {
         }
       } else if (modeLogin == 'User') {
         if (!(nameLogin == null || nameLogin.isEmpty)) {
-
           List<OrderModel> result = await SQLiteHelper().readDatabase();
           // print('amount #######===>>> ${result.length}');
           amount = result.length;
@@ -129,6 +129,7 @@ class _HomeState extends State<Home> {
         showHeadUser(),
         menuHome(),
         menuShowCart(),
+        menuUserOrder(),
         menuSignOut(),
       ],
     );
@@ -248,7 +249,29 @@ class _HomeState extends State<Home> {
     );
   }
 
-  
+  Widget menuUserOrder() {
+    return ListTile(
+      leading: Icon(
+        Icons.directions_bike,
+        size: 36.0,
+        color: MyStyle().dartColor,
+      ),
+      title: Text(
+        'รายการสั่งอาหาร',
+        style: MyStyle().h2Style,
+      ),
+      subtitle: Text(
+        'รายการสั่งอาหาร ที่รอส่ง',
+        style: MyStyle().h3StylePrimary,
+      ),
+      onTap: () {
+        setState(() {
+          cuttentWidget = ShowOrderUser();
+        });
+        Navigator.of(context).pop();
+      },
+    );
+  }
 
   Widget menuShowCart() {
     return ListTile(
@@ -597,7 +620,7 @@ class _HomeState extends State<Home> {
   void routeToShowCart() {
     MaterialPageRoute materialPageRoute =
         MaterialPageRoute(builder: (value) => ShowCart());
-    Navigator.of(context).push(materialPageRoute).then((value)=>checkLogin());
+    Navigator.of(context).push(materialPageRoute).then((value) => checkLogin());
   }
 
   @override

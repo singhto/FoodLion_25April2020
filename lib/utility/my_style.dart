@@ -120,6 +120,25 @@ class MyStyle {
     );
   }
 
+  Widget showTitleH2Primary(String string) {
+    return Row(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.only(left: 8.0),
+          child: Text(
+            string,
+            style: TextStyle(
+              fontFamily: 'ThaiSansNeue',
+              color: Color.fromARGB(0xff, 0xef, 0x79, 0x36),
+              // fontWeight: FontWeight.bold,
+              fontSize: 18.0,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget showProgress() {
     return Center(
       child: CircularProgressIndicator(),

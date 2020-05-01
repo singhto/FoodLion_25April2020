@@ -115,7 +115,7 @@ class _ShowCartState extends State<ShowCart> {
         // print('distanceAint = $distanceAint');
         distances.add(distanceAint);
 
-        int transport = checkTransport(distanceAint);
+        int transport = MyAPI().checkTransport(distanceAint);
         print('transport ===>>> $transport');
         transports.add(transport);
         sumTotals.add(transport);
@@ -139,16 +139,7 @@ class _ShowCartState extends State<ShowCart> {
     return result;
   }
 
-  int checkTransport(int distance) {
-    int transport = 0;
-    if (distance <= 5) {
-      transport = distance * 25;
-      return transport;
-    } else {
-      transport = 125 + ((distance - 5) * 5);
-      return transport;
-    }
-  }
+  
 
   @override
   Widget build(BuildContext context) {
