@@ -66,12 +66,11 @@ class _ShowOrderUserState extends State<ShowOrderUser> {
         }
         print('amounts ==>> ${amounts.toString()}');
 
-        int k=0;
+        int k = 0;
         for (var string in amounts) {
           print('amounts[$k] = $string');
           k++;
         }
-
 
         String idFoodString = orderUserModel.idFoods;
         // print('idFoodString1 $idFoodString');
@@ -112,9 +111,43 @@ class _ShowOrderUserState extends State<ShowOrderUser> {
           children: <Widget>[
             showShop(index),
             showDateTime(index),
+            headTitle(),
             showListViewOrder(index),
           ],
         ),
+      );
+
+  Widget headTitle() => Row(
+        children: <Widget>[
+          Expanded(
+            flex: 3,
+            child: Text(
+              'รายการอาหาร',
+              style: MyStyle().h3StyleDark,
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              'ราคา',
+              style: MyStyle().h3StyleDark,
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              'จำนวน',
+              style: MyStyle().h3StyleDark,
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              'รวม',
+              style: MyStyle().h3StyleDark,
+            ),
+          ),
+        ],
       );
 
   Widget showListViewOrder(int index) => ListView.builder(
@@ -122,11 +155,24 @@ class _ShowOrderUserState extends State<ShowOrderUser> {
         physics: ScrollPhysics(),
         itemCount: listFoodModels[index].length,
         itemBuilder: (value, index2) => Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            Text(listFoodModels[index][index2].nameFood),
-            Text(listFoodModels[index][index2].priceFood),
-            Text(listAmounts[index][index2]),
+            Expanded(
+              flex: 3,
+              child: Text(listFoodModels[index][index2].nameFood),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(listFoodModels[index][index2].priceFood),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(listAmounts[index][index2]),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                  '${(int.parse(listFoodModels[index][index2].priceFood)) * (int.parse(listAmounts[index][index2]))}'),
+            ),
           ],
         ),
       );
