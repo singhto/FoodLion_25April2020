@@ -3,6 +3,8 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:foodlion/models/food_model.dart';
+import 'package:foodlion/models/user_model.dart';
+import 'package:foodlion/models/user_shop_model.dart';
 
 class MyAPI {
   int checkTransport(int distance) {
@@ -51,6 +53,28 @@ class MyAPI {
       myMap = map;
     }
     return myMap;
+  }
+
+  Future<UserModel> findDetailUserWhereId(String id)async{
+    UserModel userModel;
+    String url = 'http://movehubs.com/app/getUserWhereId.php?isAdd=true&id=$id';
+    Response response = await Dio().get(url);
+    var result = json.decode(response.data);
+    for (var map in result) {
+      userModel = UserModel.fromJson(map);
+    }
+    return userModel;
+  }
+
+  Future<UserShopModel> findDetailShopWhereId(String idShop)async{
+    UserShopModel userShopModel;
+    String url = 'http://movehubs.com/app/getUserShopWhereId.php?isAdd=true&id=$idShop';
+    Response response = await Dio().get(url);
+    var result =  json.decode(response.data);
+    for (var map in result) {
+      userShopModel = UserShopModel.fromJson(map);
+    }
+    return userShopModel;
   }
 
   double calculateDistance(double lat1, double lng1, double lat2, double lng2) {

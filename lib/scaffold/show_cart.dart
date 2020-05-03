@@ -111,7 +111,7 @@ class _ShowCartState extends State<ShowCart> {
         double distance = MyAPI().calculateDistance(lat1, lng1, lat2, lng2);
         // print('distance ==>>>>> $distance');
 
-        int distanceAint = distance.toInt();
+        int distanceAint = distance.round();
         // print('distanceAint = $distanceAint');
         distances.add(distanceAint);
 
