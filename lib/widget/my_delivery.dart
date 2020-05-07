@@ -32,6 +32,7 @@ class _MyDeliveryState extends State<MyDelivery> {
     String url = 'http://movehubs.com/app/getOrderWhereStatus0.php?isAdd=true';
     Response response = await Dio().get(url);
     var result = json.decode(response.data);
+    // print('result ==>> ${result.toString()}');
 
     for (var map in result) {
       OrderUserModel orderUserModel = OrderUserModel.fromJson(map);
@@ -66,7 +67,7 @@ class _MyDeliveryState extends State<MyDelivery> {
 
   @override
   Widget build(BuildContext context) {
-    return orderUserModels.length == 0 ? showNoOrder() : showContent();
+    return Scaffold(body: orderUserModels.length == 0 ? showNoOrder() : showContent());
   }
 
   ListView showContent() {

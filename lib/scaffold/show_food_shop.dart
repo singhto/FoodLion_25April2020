@@ -232,8 +232,6 @@ class _ShowFoodShopState extends State<ShowFoodShop> {
 
     try {
       Map<String, dynamic> map = Map();
-      // map['file'] = UploadFileInfo(file, nameFile);
-      // FormData formData = FormData.from(map);
 
       map['file'] = await MultipartFile.fromFile(file.path, filename: nameFile);
       FormData formData = FormData.fromMap(map);
