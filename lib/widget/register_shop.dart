@@ -7,7 +7,6 @@ import 'package:foodlion/scaffold/home.dart';
 import 'package:foodlion/utility/my_constant.dart';
 import 'package:foodlion/utility/my_style.dart';
 import 'package:foodlion/utility/normal_dialog.dart';
-import 'package:foodlion/widget/signin_shop.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
@@ -279,8 +278,9 @@ class _RegisterShopState extends State<RegisterShop> {
 
     try {
       Map<String, dynamic> map = Map();
-      map['file'] = UploadFileInfo(file, nameFile);
-      FormData formData = FormData.from(map);
+      // map['file'] = UploadFileInfo(file, nameFile);
+      map['file'] = await MultipartFile.fromFile(file.path, filename: nameFile);
+      FormData formData = FormData.fromMap(map);
       await Dio()
           .post(url, data: formData)
           .then((response) => insertDtaToMySQL(nameFile))

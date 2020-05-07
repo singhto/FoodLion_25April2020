@@ -180,8 +180,10 @@ class _AddMyFoodState extends State<AddMyFood> {
       print('nameImage = $nameImage');
 
       Map<String, dynamic> map = Map();
-      map['file'] = UploadFileInfo(file, nameImage);
-      FormData formData = FormData.from(map);
+      // map['file'] = UploadFileInfo(file, nameImage);
+      // FormData formData = FormData.from(map);
+      map['file'] = await MultipartFile.fromFile(file.path, filename: nameImage);
+      FormData formData = FormData.fromMap(map);
       await Dio().post(url, data: formData).then((response) {
         urlFood = 'http://movehubs.com/app/Food/$nameImage';
         print('urlFood ===>>> $urlFood');

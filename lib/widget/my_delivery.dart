@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:foodlion/models/order_user_model.dart';
 import 'package:foodlion/models/user_model.dart';
 import 'package:foodlion/models/user_shop_model.dart';
+import 'package:foodlion/scaffold/detailOrder.dart';
 import 'package:foodlion/utility/my_api.dart';
 import 'package:foodlion/utility/my_style.dart';
 
@@ -71,34 +72,48 @@ class _MyDeliveryState extends State<MyDelivery> {
   ListView showContent() {
     return ListView.builder(
       itemCount: orderUserModels.length,
-      itemBuilder: (value, index) => Card(
-        color: index % 2 == 0 ? Colors.orange.shade100 : Colors.white,
-        child: Column(
-          children: <Widget>[
-            MyStyle().showTitle(nameShops[index]),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                  margin: EdgeInsets.only(left: 16.0),
-                  child: Text(
-                    'ระยะทาง = ${distances[index]} กิโลเมตร',
-                    style: MyStyle().h2NormalStyle,
+      itemBuilder: (value, index) => GestureDetector(
+        onTap: () => rountToDetailOrder(index),
+        child: Card(
+          color: index % 2 == 0 ? Colors.orange.shade100 : Colors.white,
+          child: Column(
+            children: <Widget>[
+              MyStyle().showTitle(nameShops[index]),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(left: 16.0),
+                    child: Text(
+                      'ระยะทาง = ${distances[index]} กิโลเมตร',
+                      style: MyStyle().h2NormalStyle,
+                    ),
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(right: 16.0),
-                  child: Text(
-                    'ค่าขนส่ง = ${transports[index]} บาท',
-                    style: MyStyle().h2Style,
+                  Container(
+                    margin: EdgeInsets.only(right: 16.0),
+                    child: Text(
+                      'ค่าขนส่ง = ${transports[index]} บาท',
+                      style: MyStyle().h2Style,
+                    ),
                   ),
-                ),
-              ],
-            )
-          ],
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  rountToDetailOrder(int index) {
+    MaterialPageRoute route = MaterialPageRoute(
+        builder: (value) => DetailOrder(
+              orderUserModel: orderUserModels[index],
+              nameShop: nameShops[index],
+              distance: distances[index],
+              transport: transports[index],
+            ));
+    Navigator.push(context, route);
   }
 
   Center showNoOrder() {
