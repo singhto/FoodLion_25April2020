@@ -28,13 +28,14 @@ class _DetailOrderState extends State<DetailOrder> {
   // Field
   OrderUserModel orderUserModel;
   String nameShop, nameUser;
-  int distance, transport;
+  int distance, transport, sumFood = 0;
   LatLng shopLatLng, userLatLng;
   IconData shopMarkerIcon;
   List<String> nameFoods = List();
   List<int> amounts = List();
   List<int> prices = List();
   List<int> sums = List();
+  int sumPrice = 0;
 
   @override
   void initState() {
@@ -48,7 +49,44 @@ class _DetailOrderState extends State<DetailOrder> {
       findDetailShopAnUser();
       findOrder();
       findAmound();
+      findSum();
     });
+  }
+
+  Future<Null> findSum() async {
+    String idShop = orderUserModel.idShop;
+    String idFoods = orderUserModel.idFoods;
+    String amounes = orderUserModel.amountFoods;
+
+    print('idShop ==> $idShop, idFoods ==> $idFoods, amounts ==> $amounes');
+
+    List<int> amountIntFoods = changeToArray(amounes);
+    List<int> idFoodInt = changeToArray(idFoods);
+    // List<int> priceIntFoods = List();
+
+    int i = 0;
+    for (var idFood in idFoodInt) {
+      FoodModel foodModel =
+          await MyAPI().findDetailFoodWhereId(idFood.toString());
+
+      setState(() {
+        sumPrice =
+            sumPrice + (int.parse(foodModel.priceFood)) * amountIntFoods[1];
+        // print('sumPrice ==>> $sumPrice');
+      });
+      i++;
+    }
+  }
+
+  List<int> changeToArray(String string) {
+    List<int> list = List();
+    string = string.substring(1, string.length - 1);
+    List<String> listStrings = string.split(',');
+
+    for (var string in listStrings) {
+      list.add(int.parse(string.trim()));
+    }
+    return list;
   }
 
   Future<void> findAmound() async {
@@ -60,7 +98,6 @@ class _DetailOrderState extends State<DetailOrder> {
     for (var string in strings) {
       setState(() {
         amounts.add(int.parse(string.trim()));
-        // sums.add(amounts[i] * prices[i]);
       });
       // i++;
     }
@@ -100,6 +137,7 @@ class _DetailOrderState extends State<DetailOrder> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: acceptJob(),
       appBar: AppBar(
         title: Text('รายการอาหาร $nameShop'),
       ),
@@ -118,25 +156,40 @@ class _DetailOrderState extends State<DetailOrder> {
     );
   }
 
+  FloatingActionButton acceptJob() => FloatingActionButton(
+        child: Icon(Icons.directions_bike),
+        backgroundColor: MyStyle().primaryColor,
+        onPressed: () {},
+      );
+
   Widget showSumFood() => Row(
         children: <Widget>[
           Expanded(
-            flex: 5,
+            flex: 4,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 Text(
                   'ผลรวมอาหาร   ',
-                  style: MyStyle().h2NormalStyle,
+                  style: MyStyle().h2StylePrimary,
                 ),
               ],
             ),
           ),
           Expanded(
             flex: 1,
-            child: Text(
-              '123',
-              style: MyStyle().h2Style,
+            child: Container(
+              margin: EdgeInsets.only(right: 5.0),
+              decoration: BoxDecoration(color: MyStyle().primaryColor),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    '$sumPrice บาท',
+                    style: MyStyle().h2StyleWhite,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -158,13 +211,21 @@ class _DetailOrderState extends State<DetailOrder> {
           ),
           Expanded(
             flex: 1,
-            child: Column(mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(
-                  '$distance Km.',
-                  style: MyStyle().h2Style,
-                ),Text('1234 บาท',style: MyStyle().h2Style,)
-              ],
+            child: Container(margin: EdgeInsets.only(right: 5.0),
+              decoration: BoxDecoration(color: MyStyle().dartColor),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    '$distance กิโลเมตร',
+                    style: MyStyle().h2StyleWhite,
+                  ),
+                  Text(
+                    '$transport บาท',
+                    style: MyStyle().h2StyleWhite,
+                  )
+                ],
+              ),
             ),
           ),
         ],
@@ -217,29 +278,51 @@ class _DetailOrderState extends State<DetailOrder> {
         shrinkWrap: true,
         physics: ScrollPhysics(),
         itemCount: nameFoods.length,
-        itemBuilder: (value, index) => Container(padding: EdgeInsets.only(left: 16.0),
+        itemBuilder: (value, index) => Container(
+          padding: EdgeInsets.only(left: 16.0),
           child: Row(
             children: <Widget>[
               Expanded(
                 flex: 3,
-                child: Text(nameFoods[index], style: MyStyle().h3StylePrimary,),
+                child: Text(
+                  nameFoods[index],
+                  style: MyStyle().h3StylePrimary,
+                ),
               ),
               Expanded(
                 flex: 1,
-                child: Text(amounts[index].toString(), style: MyStyle().h3StyleDark,),
+                child: Text(
+                  amounts[index].toString(),
+                  style: MyStyle().h3StyleDark,
+                ),
               ),
               Expanded(
                 flex: 1,
-                child: Text(prices[index].toString(), style: MyStyle().h3StyleDark,),
+                child: Text(
+                  prices[index].toString(),
+                  style: MyStyle().h3StyleDark,
+                ),
               ),
               Expanded(
                 flex: 1,
-                child: Text('${amounts[index] * prices[index]}', style: MyStyle().h3StyleDark,),
+                child: Text(
+                  '${amounts[index] * prices[index]}',
+                  style: MyStyle().h3StyleDark,
+                ),
               ),
             ],
           ),
         ),
       );
+
+  String showSumPrice(int amount, int price) {
+    int sumPrice = amount * price;
+    setState(() {
+      sumFood = sumFood + sumPrice;
+      print('sumFood = $sumFood');
+    });
+    return sumPrice.toString();
+  }
 
   Widget showTitleNameShop() => MyStyle().showTitle('ร้าน $nameShop');
 }

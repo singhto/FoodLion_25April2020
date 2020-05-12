@@ -6,7 +6,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/banner_model.dart';
 import 'package:foodlion/models/user_shop_model.dart';
-import 'package:foodlion/scaffold/home.dart';
 import 'package:foodlion/utility/my_constant.dart';
 import 'package:foodlion/utility/my_style.dart';
 import 'package:foodlion/widget/my_food.dart';

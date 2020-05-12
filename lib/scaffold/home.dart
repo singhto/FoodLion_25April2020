@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/order_model.dart';
 import 'package:foodlion/scaffold/show_cart.dart';
@@ -31,13 +32,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   // Field
   Widget cuttentWidget = MainHome();
-  String nameLogin, avatar, modeLogin, loginType;
+  String nameLogin, avatar, modeLogin, loginType, token;
   bool statusLogin = false; //false => no login
-  List<Widget> currentWidgets = <Widget>[
-    MainHome(),
-    OrderShop(),
-    MainHome()
-  ]; //[GenerLogin, ShopLogin, UserLogin]
 
   int amount = 0;
 
@@ -45,8 +41,17 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    findToken();
     checkWidget();
     checkLogin();
+  }
+
+  Future<Null> findToken() async {
+    FirebaseMessaging firebaseMessaging = FirebaseMessaging();
+    await firebaseMessaging.getToken().then((value) {
+      token = value.toString();
+      print('token = $token');
+    });
   }
 
   void checkWidget() {
