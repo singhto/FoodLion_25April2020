@@ -41,17 +41,9 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    findToken();
+
     checkWidget();
     checkLogin();
-  }
-
-  Future<Null> findToken() async {
-    FirebaseMessaging firebaseMessaging = FirebaseMessaging();
-    await firebaseMessaging.getToken().then((value) {
-      token = value.toString();
-      print('token = $token');
-    });
   }
 
   void checkWidget() {
@@ -81,7 +73,6 @@ class _HomeState extends State<Home> {
       } else if (modeLogin == 'User') {
         if (!(nameLogin == null || nameLogin.isEmpty)) {
           List<OrderModel> result = await SQLiteHelper().readDatabase();
-          // print('amount #######===>>> ${result.length}');
           amount = result.length;
 
           setState(() {

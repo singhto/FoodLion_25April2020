@@ -6,8 +6,11 @@ import 'package:foodlion/models/order_user_model.dart';
 import 'package:foodlion/models/user_model.dart';
 import 'package:foodlion/models/user_shop_model.dart';
 import 'package:foodlion/scaffold/detailOrder.dart';
+import 'package:foodlion/utility/find_token.dart';
 import 'package:foodlion/utility/my_api.dart';
 import 'package:foodlion/utility/my_style.dart';
+import 'package:foodlion/utility/normal_toast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyDelivery extends StatefulWidget {
   @override
@@ -20,12 +23,27 @@ class _MyDeliveryState extends State<MyDelivery> {
   List<String> nameShops = List();
   List<int> distances = List();
   List<int> transports = List();
+  String idRider;
 
   // Method
   @override
   void initState() {
     super.initState();
+    updateToken();
     readOrder();
+  }
+
+  Future<Null> updateToken() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    idRider = preferences.getString('id');
+    String token = await findToken();
+
+    String url =
+        'http://movehubs.com/app/editTokenRiderWhereId.php?isAdd=true&id=$idRider&Token=$token';
+    Response response = await Dio().get(url);
+    if (response.toString() == 'true') {
+      normalToast('อัพเดทตำแหน่งใหม่ สำเร็จ');
+    }
   }
 
   Future<void> readOrder() async {

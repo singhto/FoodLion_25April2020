@@ -6,9 +6,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/banner_model.dart';
 import 'package:foodlion/models/user_shop_model.dart';
+import 'package:foodlion/utility/find_token.dart';
 import 'package:foodlion/utility/my_constant.dart';
 import 'package:foodlion/utility/my_style.dart';
+import 'package:foodlion/utility/normal_toast.dart';
 import 'package:foodlion/widget/my_food.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainHome extends StatefulWidget {
   @override
@@ -21,13 +24,33 @@ class _MainHomeState extends State<MainHome> {
   List<Widget> showWidgets = List();
   List<BannerModel> bannerModels = List();
   List<Widget> showBanners = List();
+  String idUser;
 
   // Method
   @override
   void initState() {
     super.initState();
+
+    editToken();
     readBanner();
     readShopThread();
+  }
+
+  Future<Null> editToken() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    idUser = preferences.getString('id');
+
+    if (idUser != null) {
+      String token = await findToken();
+      print('idUser = $idUser, token = $token');
+
+      String url =
+          'http://movehubs.com/app/editTokenUserWhereId.php?isAdd=true&id=$idUser&Token=$token';
+      Response response = await Dio().get(url);
+      if (response.toString() == 'true') {
+        normalToast('อัพเดทตำแหน่งใหม่ สำเร็จ');
+      }
+    }
   }
 
   Future<void> readBanner() async {
@@ -137,7 +160,7 @@ class _MainHomeState extends State<MainHome> {
         : CarouselSlider(
             items: showBanners,
             enlargeCenterPage: true,
-            aspectRatio: 16/9,
+            aspectRatio: 16 / 9,
             pauseAutoPlayOnTouch: Duration(seconds: 3),
             autoPlay: true,
             autoPlayAnimationDuration: Duration(seconds: 3),
