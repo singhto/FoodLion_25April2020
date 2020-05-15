@@ -184,6 +184,9 @@ class _ShowOrderUserState extends State<ShowOrderUser> {
 
   @override
   Widget build(BuildContext context) {
-    return currentWidget == null ? MyStyle().showProgress() : currentWidget;
+    return Scaffold(
+      appBar: AppBar(title: Text('รายการสั่งอาหาร'),),
+      body: currentWidget == null ? MyStyle().showProgress() : currentWidget,
+    );
   }
 }

@@ -1,9 +1,7 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:foodlion/models/order_model.dart';
 import 'package:foodlion/scaffold/show_cart.dart';
-import 'package:foodlion/utility/sqlite_helper.dart';
 import 'package:foodlion/widget/add_my_food.dart';
+import 'package:foodlion/widget/guest.dart';
 import 'package:foodlion/widget/main_home.dart';
 import 'package:foodlion/widget/my_delivery.dart';
 import 'package:foodlion/widget/my_food.dart';
@@ -31,7 +29,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   // Field
-  Widget cuttentWidget = MainHome();
+  Widget cuttentWidget = Guest();
   String nameLogin, avatar, modeLogin, loginType, token;
   bool statusLogin = false; //false => no login
 
@@ -71,15 +69,19 @@ class _HomeState extends State<Home> {
           });
         }
       } else if (modeLogin == 'User') {
-        if (!(nameLogin == null || nameLogin.isEmpty)) {
-          List<OrderModel> result = await SQLiteHelper().readDatabase();
-          amount = result.length;
 
-          setState(() {
-            statusLogin = true;
-            cuttentWidget = MainHome();
-          });
-        }
+        MaterialPageRoute route = MaterialPageRoute(builder: (context) => MainHome(),);
+        Navigator.pushAndRemoveUntil(context, route, (route) => false);
+
+        // if (!(nameLogin == null || nameLogin.isEmpty)) {
+        //   List<OrderModel> result = await SQLiteHelper().readDatabase();
+        //   amount = result.length;
+
+        //   setState(() {
+        //     statusLogin = true;
+        //     cuttentWidget = MainHome();
+        //   });
+        // }
       } else if (modeLogin == 'Dev') {
         if (!(nameLogin == null || nameLogin.isEmpty)) {
           setState(() {
@@ -537,7 +539,7 @@ class _HomeState extends State<Home> {
       onTap: () {
         setState(() {
           Navigator.of(context).pop();
-          cuttentWidget = MainHome();
+          cuttentWidget = Guest();
         });
       },
     );

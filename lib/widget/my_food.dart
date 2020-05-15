@@ -34,9 +34,12 @@ class _MyFoodState extends State<MyFood> {
   }
 
   Future<void> checkAmount() async {
+    print('checkAmount Work');
     try {
       List<OrderModel> list = await SQLiteHelper().readDatabase();
-      amount = list.length;
+      setState(() {
+        amount = list.length;
+      });
     } catch (e) {}
   }
 
@@ -90,12 +93,14 @@ class _MyFoodState extends State<MyFood> {
 
   Widget showContent(int index) => GestureDetector(
         onTap: () {
-          // print('You Click idFood ===>> ${foodModels[index].id}');
+          print('You Click idFood');
           MaterialPageRoute route = MaterialPageRoute(
               builder: (value) => ShowFood(
                     foodModel: foodModels[index],
                   ));
-          Navigator.of(context).push(route).then((value) => checkAmount());
+          Navigator.of(context).push(route).then(
+                (value) => checkAmount(),
+              );
         },
         child: Row(
           children: <Widget>[
@@ -205,7 +210,9 @@ class _MyFoodState extends State<MyFood> {
         onTap: () {
           MaterialPageRoute route =
               MaterialPageRoute(builder: (value) => ShowCart());
-          Navigator.of(context).push(route).then((value) => checkAmount());
+          Navigator.of(context).push(route).then(
+                (value) => checkAmount(),
+              );
         },
         child: MyStyle().showMyCart(amount),
       );

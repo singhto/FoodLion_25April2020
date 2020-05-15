@@ -43,7 +43,7 @@ class SQLiteHelper {
         orderModel.toJson(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      database.close();
+      // database.close();
     } catch (e) {
       print('e insertDatabase ==>> ${e.toString()}');
     }
@@ -63,7 +63,7 @@ class SQLiteHelper {
       return orderModels;
     } catch (e) {
       print('e readDatabase ==>> ${e.toString()}');
-      database.close();
+      // database.close();
       return null;
     }
   }

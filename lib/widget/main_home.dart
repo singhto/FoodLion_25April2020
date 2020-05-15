@@ -5,12 +5,17 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/banner_model.dart';
+import 'package:foodlion/models/order_model.dart';
 import 'package:foodlion/models/user_shop_model.dart';
+import 'package:foodlion/scaffold/home.dart';
+import 'package:foodlion/scaffold/show_cart.dart';
 import 'package:foodlion/utility/find_token.dart';
 import 'package:foodlion/utility/my_constant.dart';
 import 'package:foodlion/utility/my_style.dart';
 import 'package:foodlion/utility/normal_toast.dart';
+import 'package:foodlion/utility/sqlite_helper.dart';
 import 'package:foodlion/widget/my_food.dart';
+import 'package:foodlion/widget/show_order_user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainHome extends StatefulWidget {
@@ -24,7 +29,8 @@ class _MainHomeState extends State<MainHome> {
   List<Widget> showWidgets = List();
   List<BannerModel> bannerModels = List();
   List<Widget> showBanners = List();
-  String idUser;
+  String idUser, nameLogin;
+  int amount = 0;
 
   // Method
   @override
@@ -34,6 +40,25 @@ class _MainHomeState extends State<MainHome> {
     editToken();
     readBanner();
     readShopThread();
+    checkAmount();
+    findUser();
+  }
+
+  Future<Null> findUser() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      nameLogin = preferences.getString('Name');
+    });
+  }
+
+  Future<void> checkAmount() async {
+    print('checkAmount Work');
+    try {
+      List<OrderModel> list = await SQLiteHelper().readDatabase();
+      setState(() {
+        amount = list.length;
+      });
+    } catch (e) {}
   }
 
   Future<Null> editToken() async {
@@ -119,7 +144,7 @@ class _MainHomeState extends State<MainHome> {
         MaterialPageRoute route = MaterialPageRoute(
           builder: (value) => MyFood(idShop: model.id),
         );
-        Navigator.of(context).push(route);
+        Navigator.of(context).push(route).then((value) => checkAmount());
       },
       child: Card(
         child: Column(
@@ -167,16 +192,172 @@ class _MainHomeState extends State<MainHome> {
           );
   }
 
+  Widget showCart() {
+    return GestureDetector(
+      onTap: () {
+        routeToShowCart();
+      },
+      child: MyStyle().showMyCart(amount),
+    );
+  }
+
+  void routeToShowCart() {
+    MaterialPageRoute materialPageRoute =
+        MaterialPageRoute(builder: (value) => ShowCart());
+    Navigator.of(context)
+        .push(materialPageRoute)
+        .then((value) => checkAmount());
+  }
+
+  ListView userList() {
+    return ListView(
+      children: <Widget>[
+        showHeadUser(),
+        menuHome(),
+        menuShowCart(),
+        menuUserOrder(),
+        menuSignOut(),
+      ],
+    );
+  }
+
+  Future<void> signOutProcess() async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      preferences.clear();
+
+      MaterialPageRoute route = MaterialPageRoute(builder: (value) => Home());
+      Navigator.of(context).pushAndRemoveUntil(route, (value) => false);
+    } catch (e) {}
+  }
+
+  Widget menuSignOut() {
+    return ListTile(
+      leading: Icon(
+        Icons.exit_to_app,
+        color: MyStyle().dartColor,
+        size: 36.0,
+      ),
+      title: Text(
+        'ออกจากระบบ',
+        style: MyStyle().h2Style,
+      ),
+      subtitle: Text(
+        'กดที่นี่ เพื่อออกจากระบบ',
+        style: MyStyle().h3StylePrimary,
+      ),
+      onTap: () {
+        Navigator.of(context).pop();
+        signOutProcess();
+      },
+    );
+  }
+
+  Widget menuUserOrder() {
+    return ListTile(
+      leading: Icon(
+        Icons.directions_bike,
+        size: 36.0,
+        color: MyStyle().dartColor,
+      ),
+      title: Text(
+        'รายการสั่งอาหาร',
+        style: MyStyle().h2Style,
+      ),
+      subtitle: Text(
+        'รายการสั่งอาหาร ที่รอส่ง',
+        style: MyStyle().h3StylePrimary,
+      ),
+      onTap: () {
+        Navigator.of(context).pop();
+        MaterialPageRoute materialPageRoute = MaterialPageRoute(
+          builder: (context) => ShowOrderUser(),
+        );
+        Navigator.push(context, materialPageRoute);
+      },
+    );
+  }
+
+  Widget menuShowCart() {
+    return ListTile(
+      leading: Icon(
+        Icons.shopping_cart,
+        size: 36.0,
+        color: MyStyle().dartColor,
+      ),
+      title: Text(
+        'ตะกร้า',
+        style: MyStyle().h2Style,
+      ),
+      subtitle: Text(
+        'แสดงรายการสินค้า ที่มีใน ตะกร้า',
+        style: MyStyle().h3StylePrimary,
+      ),
+      onTap: () {
+        Navigator.of(context).pop();
+        routeToShowCart();
+      },
+    );
+  }
+
+  Widget menuHome() {
+    return ListTile(
+      leading: Icon(
+        Icons.fastfood,
+        size: 36.0,
+        color: MyStyle().dartColor,
+      ),
+      title: Text(
+        'หน้าแรก',
+        style: MyStyle().h2Style,
+      ),
+      subtitle: Text(
+        'วันนี้กินอะไรดี',
+        style: MyStyle().h3StylePrimary,
+      ),
+      onTap: () {
+        setState(() {
+          Navigator.of(context).pop();
+          // cuttentWidget = MainHome();
+        });
+      },
+    );
+  }
+
+  Widget showHeadUser() {
+    // print('nameLogin ==>>> $nameLogin');
+    return UserAccountsDrawerHeader(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+            image: AssetImage('images/bic3.png'), fit: BoxFit.cover),
+      ),
+      currentAccountPicture: showLogo(),
+      accountName: Text(
+        nameLogin,
+        style: MyStyle().h2StyleWhite,
+      ),
+      accountEmail: Text('Login'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // return showShop();
 
-    return Column(
-      children: <Widget>[
-        showBanner(),
-        MyStyle().showTitle('ร้านอาหารใกล้คุณ'),
-        showShop(),
-      ],
+    return Scaffold(
+      drawer: Drawer(child: userList(),),
+      appBar: AppBar(
+        actions: <Widget>[showCart()],
+      ),
+      body: Column(
+        children: <Widget>[
+          showBanner(),
+          MyStyle().showTitle('ร้านอาหารใกล้คุณ'),
+          showShop(),
+        ],
+      ),
     );
   }
+
+  showLogo() {}
 }
