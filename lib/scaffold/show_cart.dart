@@ -239,10 +239,10 @@ class _ShowCartState extends State<ShowCart> {
       amountFoods.add(model.amountFood);
     }
 
-    print(
-        'idUser = ${userModel.id}, idShop = ${idShopOnSQLites[0]}, dateTime = $dateTime');
-    print('idFoods = ${idFoods.toString()}');
-    print('amountFoods = ${amountFoods.toString()}');
+    // print(
+    //     'idUser = ${userModel.id}, idShop = ${idShopOnSQLites[0]}, dateTime = $dateTime');
+    // print('idFoods = ${idFoods.toString()}');
+    // print('amountFoods = ${amountFoods.toString()}');
 
     String url =
         'http://movehubs.com/app/addOrder.php?isAdd=true&idUser=${userModel.id}&idShop=${idShopOnSQLites[0]}&DateTime=$dateTime&idFoods=${idFoods.toString()}&amountFoods=${amountFoods.toString()}';

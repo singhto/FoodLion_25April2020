@@ -69,19 +69,10 @@ class _HomeState extends State<Home> {
           });
         }
       } else if (modeLogin == 'User') {
-
-        MaterialPageRoute route = MaterialPageRoute(builder: (context) => MainHome(),);
+        MaterialPageRoute route = MaterialPageRoute(
+          builder: (context) => MainHome(),
+        );
         Navigator.pushAndRemoveUntil(context, route, (route) => false);
-
-        // if (!(nameLogin == null || nameLogin.isEmpty)) {
-        //   List<OrderModel> result = await SQLiteHelper().readDatabase();
-        //   amount = result.length;
-
-        //   setState(() {
-        //     statusLogin = true;
-        //     cuttentWidget = MainHome();
-        //   });
-        // }
       } else if (modeLogin == 'Dev') {
         if (!(nameLogin == null || nameLogin.isEmpty)) {
           setState(() {
