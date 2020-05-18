@@ -52,24 +52,15 @@ class _ShowOrderUserState extends State<ShowOrderUser> {
       for (var map in result) {
         OrderUserModel orderUserModel = OrderUserModel.fromJson(map);
 
-        // print('amount = ${orderUserModel.amountFoods.toString()}');
         String amountString = orderUserModel.amountFoods;
         amountString = amountString.substring(1, (amountString.length - 1));
         print('amountString ==> $amountString');
         List<String> amounts = amountString.split(',');
-        // amounts.add(amountString);
 
         int j = 0;
         for (var string in amounts) {
           amounts[j] = string.trim();
           j++;
-        }
-        print('amounts ==>> ${amounts.toString()}');
-
-        int k = 0;
-        for (var string in amounts) {
-          print('amounts[$k] = $string');
-          k++;
         }
 
         String idFoodString = orderUserModel.idFoods;

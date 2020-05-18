@@ -7,6 +7,7 @@ import 'package:foodlion/models/user_model.dart';
 import 'package:foodlion/models/user_shop_model.dart';
 
 class MyAPI {
+  
   int checkTransport(int distance) {
     int transport = 0;
     if (distance <= 5) {

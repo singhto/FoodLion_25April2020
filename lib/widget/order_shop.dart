@@ -1,6 +1,12 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:foodlion/models/food_model.dart';
+import 'package:foodlion/models/order_user_model.dart';
+import 'package:foodlion/models/user_model.dart';
 import 'package:foodlion/utility/find_token.dart';
+import 'package:foodlion/utility/my_api.dart';
 import 'package:foodlion/utility/my_style.dart';
 import 'package:foodlion/utility/normal_toast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,18 +19,31 @@ class OrderShop extends StatefulWidget {
 class _OrderShopState extends State<OrderShop> {
   // Field
   String idShop;
+  List<OrderUserModel> orderUserModels = List();
+  List<String> nameUsers = List();
+  List<List<FoodModel>> listFoodModels = List();
+  List<List<String>> listAmounts = List();
+  List<int> totals = List();
 
   // Method
   @override
   void initState() {
     super.initState();
-    updateToken();
+    updateTokenAndOrder();
   }
 
-  Future<Null> updateToken() async {
+  Future<Null> updateTokenAndOrder() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     idShop = preferences.getString('id');
     String token = await findToken();
+
+    if (orderUserModels.length != 0) {
+      orderUserModels.clear();
+      nameUsers.clear();
+      listFoodModels.clear();
+      listAmounts.clear();
+      totals.clear();
+    }
 
     String url =
         'http://movehubs.com/app/editTokenShopWhereId.php?isAdd=true&id=$idShop&Token=$token';
@@ -32,6 +51,51 @@ class _OrderShopState extends State<OrderShop> {
     if (response.toString() == 'true') {
       normalToast('อัพเดทตำแหน่งใหม่ สำเร็จ');
     }
+
+    String urlOrder =
+        'http://movehubs.com/app/getOrderWhereIdShopSuccess0.php?isAdd=true&idShop=$idShop';
+    try {
+      Response response = await Dio().get(urlOrder);
+      // print('res ==> $response');
+      var result = json.decode(response.data);
+
+      for (var map in result) {
+        OrderUserModel orderUserModel = OrderUserModel.fromJson(map);
+        UserModel userModel =
+            await MyAPI().findDetailUserWhereId(orderUserModel.idUser);
+
+        String idFoodString = orderUserModel.idFoods;
+        idFoodString = idFoodString.substring(1, idFoodString.length - 1);
+        List<String> listFood = idFoodString.split(',');
+        List<FoodModel> foodModels = List();
+        List<int> priceInts = List();
+        for (var idFood in listFood) {
+          FoodModel foodModel =
+              await MyAPI().findDetailFoodWhereId(idFood.trim());
+          foodModels.add(foodModel);
+          priceInts.add(int.parse(foodModel.priceFood));
+        }
+
+        String amountString = orderUserModel.amountFoods;
+        amountString = amountString.substring(1, amountString.length - 1);
+        List<String> amounts = amountString.split(',');
+        int total = 0;
+        int i = 0;
+        for (var amount in amounts) {
+          total = total + (priceInts[i] * int.parse(amount.trim()));
+          i++;
+        }
+        totals.add(total);
+        listAmounts.add(amounts);
+
+        setState(() {
+          orderUserModels.add(orderUserModel);
+          nameUsers.add(userModel.name);
+          listFoodModels.add(foodModels);
+        });
+      } // for 1
+
+    } catch (e) {}
   }
 
   Widget waitOrder() {
@@ -64,6 +128,190 @@ class _OrderShopState extends State<OrderShop> {
 
   @override
   Widget build(BuildContext context) {
-    return waitOrder();
+    return orderUserModels.length == 0 ? waitOrder() : showListOrder();
+  }
+
+  ListView showListOrder() {
+    return ListView.builder(
+      padding: EdgeInsets.all(10.0),
+      itemCount: orderUserModels.length,
+      itemBuilder: (context, index1) => GestureDetector(
+        onTap: () => showConfirmFinish(index1),
+        child: Column(
+          children: <Widget>[
+            MyStyle().showTitle('รายการอาหาร คุณ ${nameUsers[index1]}'),
+            Row(
+              children: <Widget>[
+                Text(orderUserModels[index1].dateTime),
+              ],
+            ),
+            Container(
+              decoration: BoxDecoration(color: Colors.orange.shade100),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      'รายการอาหาร',
+                      style: MyStyle().h3StyleDark,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      'ราคา',
+                      style: MyStyle().h3StyleDark,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      'จำนวน',
+                      style: MyStyle().h3StyleDark,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      'ผลรวม',
+                      style: MyStyle().h3StyleDark,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: ScrollPhysics(),
+              itemCount: listFoodModels[index1].length,
+              itemBuilder: (context, index2) => Row(
+                children: <Widget>[
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      listFoodModels[index1][index2].nameFood,
+                      style: MyStyle().h2NormalStyle,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      listFoodModels[index1][index2].priceFood,
+                      style: MyStyle().h2Style,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      listAmounts[index1][index2].trim(),
+                      style: MyStyle().h2Style,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      '${int.parse(listFoodModels[index1][index2].priceFood) * int.parse(listAmounts[index1][index2].trim())}',
+                      style: MyStyle().h2Style,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 5,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Text(
+                        'Total :',
+                        style: MyStyle().h2StylePrimary,
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    decoration: BoxDecoration(color: MyStyle().primaryColor),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          totals[index1].toString(),
+                          style: MyStyle().h2StyleWhite,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<Null> showConfirmFinish(int index) async {
+    showDialog(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title:
+            Text('Rider มารับสินด้า ของคุณ ${nameUsers[index]} แล้วใช่ไหม ?'),
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              confirmButton(index),
+              MyStyle().mySizeBox(),
+              cancelButton(),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  OutlineButton confirmButton(int index) {
+    return OutlineButton.icon(
+      onPressed: () {
+        confirmSuccessShop(index);
+        Navigator.pop(context);
+      },
+      icon: Icon(
+        Icons.check,
+        color: Colors.green,
+      ),
+      label: Text('มารับแล้ว'),
+    );
+  }
+
+  Future<Null> confirmSuccessShop(int index) async {
+    String idOrder = orderUserModels[index].id;
+    print('idOrder = $idOrder');
+    String url =
+        'http://movehubs.com/app/editStatusShopOrderWhereId.php?isAdd=true&id=$idOrder';
+    await Dio().get(url).then(
+          (value) {
+            if (value.statusCode == 200) {
+              updateTokenAndOrder();
+            } else {
+              normalToast('กรุณา ลองใหม่ ระบบขัดข้อง คะ');
+            }
+          },
+        );
+  }
+
+  OutlineButton cancelButton() {
+    return OutlineButton.icon(
+      onPressed: () => Navigator.pop(context),
+      icon: Icon(
+        Icons.clear,
+        color: Colors.red,
+      ),
+      label: Text('ยังไม่มารับ'),
+    );
   }
 }
