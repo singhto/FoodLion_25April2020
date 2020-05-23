@@ -1,4 +1,7 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:foodlion/models/order_user_model.dart';
+import 'package:foodlion/scaffold/detailOrder.dart';
 import 'package:foodlion/scaffold/show_cart.dart';
 import 'package:foodlion/widget/add_my_food.dart';
 import 'package:foodlion/widget/guest.dart';
@@ -21,7 +24,19 @@ import '../utility/my_style.dart';
 class Home extends StatefulWidget {
   final Widget currentWidget;
   final int indexLogin;
-  Home({Key key, this.currentWidget, this.indexLogin}) : super(key: key);
+  final OrderUserModel orderUserModel;
+  final String nameShop;
+  final int distance;
+  final int transport;
+  Home(
+      {Key key,
+      this.currentWidget,
+      this.indexLogin,
+      this.orderUserModel,
+      this.nameShop,
+      this.distance,
+      this.transport})
+      : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
@@ -30,15 +45,20 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   // Field
   Widget cuttentWidget = Guest();
-  String nameLogin, avatar, modeLogin, loginType, token;
+  String nameLogin, avatar, modeLogin, loginType, token, nameShop;
   bool statusLogin = false; //false => no login
-
-  int amount = 0;
+  int amount = 0, distance, transport;
+  OrderUserModel orderUserModel;
 
   // Method
   @override
   void initState() {
     super.initState();
+
+    orderUserModel = widget.orderUserModel;
+    nameShop = widget.nameShop;
+    distance = widget.distance;
+    transport = widget.transport;
 
     checkWidget();
     checkLogin();
@@ -46,6 +66,13 @@ class _HomeState extends State<Home> {
 
   void checkWidget() {
     Widget myWidget = widget.currentWidget;
+
+    // if (orderUserModel != null) {
+    //   print('orderUserModel != null');
+    //   MaterialPageRoute route = MaterialPageRoute(builder: (context) => Home(),);
+    //   Navigator.pushAndRemoveUntil(context, route, (route) => false);
+    // }
+
     if (myWidget != null) {
       setState(() {
         cuttentWidget = myWidget;
@@ -75,10 +102,22 @@ class _HomeState extends State<Home> {
         Navigator.pushAndRemoveUntil(context, route, (route) => false);
       } else if (modeLogin == 'Dev') {
         if (!(nameLogin == null || nameLogin.isEmpty)) {
-          setState(() {
-            statusLogin = true;
-            cuttentWidget = MyDelivery();
-          });
+          if (nameShop != null) {
+            MaterialPageRoute route = MaterialPageRoute(
+              builder: (context) => DetailOrder(
+                orderUserModel: orderUserModel,
+                nameShop: nameShop,
+                distance: distance,
+                transport: transport,
+              ),
+            );
+            Navigator.pushAndRemoveUntil(context, route, (route) => false);
+          } else {
+            setState(() {
+              statusLogin = true;
+              cuttentWidget = MyDelivery();
+            });
+          }
         }
       } else {}
     } catch (e) {}

@@ -1,12 +1,15 @@
 import 'dart:math';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/food_model.dart';
 import 'package:foodlion/models/order_user_model.dart';
 import 'package:foodlion/models/user_model.dart';
 import 'package:foodlion/models/user_shop_model.dart';
+import 'package:foodlion/scaffold/home.dart';
 import 'package:foodlion/utility/my_api.dart';
 import 'package:foodlion/utility/my_style.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailOrder extends StatefulWidget {
   final OrderUserModel orderUserModel;
@@ -36,6 +39,7 @@ class _DetailOrderState extends State<DetailOrder> {
   List<int> prices = List();
   List<int> sums = List();
   int sumPrice = 0;
+  bool stateStatus = true;
 
   @override
   void initState() {
@@ -158,9 +162,134 @@ class _DetailOrderState extends State<DetailOrder> {
 
   FloatingActionButton acceptJob() => FloatingActionButton(
         child: Icon(Icons.directions_bike),
-        backgroundColor: MyStyle().primaryColor,
-        onPressed: () {},
+        backgroundColor: orderUserModel.idDelivery.isEmpty
+            ? MyStyle().primaryColor
+            : Colors.green,
+        onPressed: () =>
+            orderUserModel.idDelivery.isEmpty ? confirmAccepp() : nearSuccess(),
       );
+
+  Future<Null> nearSuccess() async {
+    showDialog(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: MyStyle().showTitle('ติดตามสินค้า'),
+        children: <Widget>[
+          MyStyle().showTitleH2Primary('ส่งของให้ลูกค้า สำเร็จแล้วใช่ไหม ?'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              successRider(),
+              MyStyle().mySizeBox(),
+              cancel('ยังไม่สำเร็จ'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  OutlineButton successRider() {
+    return OutlineButton.icon(
+      onPressed: () {
+        clearSuccess();
+      },
+      icon: Icon(
+        Icons.check,
+        color: Colors.green,
+      ),
+      label: Text('สำเร็จ'),
+    );
+  }
+
+  Future<Null> clearSuccess() async {
+    String idOrder = orderUserModel.id;
+    String url =
+        'http://movehubs.com/app/editOrderWhereIdRider.php?isAdd=true&id=$idOrder&Success=Success';
+    Response response = await Dio().get(url);
+    if (response.toString() == 'true') {
+      MaterialPageRoute route = MaterialPageRoute(
+        builder: (context) => Home(),
+      );
+      Navigator.pushAndRemoveUntil(context, route, (route) => false);
+    }
+  }
+
+  Future<Null> confirmAccepp() async {
+    showDialog(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: MyStyle().showTitle('ยื่นยันการรับงาน'),
+        children: <Widget>[
+          MyStyle().showTitleH2Primary('Rider ยื่นยันการรับงาน คะ'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              confirm(),
+              MyStyle().mySizeBox(),
+              cancel('ไม่รับงานนี คะ'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  OutlineButton confirm() {
+    return OutlineButton.icon(
+      onPressed: () {
+        acceptJobThread();
+        Navigator.pop(context);
+      },
+      icon: Icon(
+        Icons.check,
+        color: Colors.green,
+      ),
+      label: Text('ยืนยันการรับงาน'),
+    );
+  }
+
+  OutlineButton cancel(String string) {
+    return OutlineButton.icon(
+      onPressed: () => Navigator.pop(context),
+      icon: Icon(
+        Icons.clear,
+        color: Colors.red,
+      ),
+      label: Text(string),
+    );
+  }
+
+  Future<Null> acceptJobThread() async {
+    String idOrder = orderUserModel.id;
+
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String idRider = preferences.getString('id');
+    preferences.setInt('distance', distance);
+    preferences.setInt('transport', transport);
+
+    print('idOrder ==> $idOrder, idRider ==> $idRider');
+
+    String url2 =
+        'http://movehubs.com/app/editIdRiderWhereIdOrder.php?isAdd=true&id=$idOrder&idDelivery=$idRider';
+    await Dio().get(url2);
+
+    String url =
+        'http://movehubs.com/app/editOrderWhereIdRider.php?isAdd=true&id=$idOrder&Success=$idRider';
+    Response response = await Dio().get(url);
+    print('resAcceptOrder ==>> $response');
+    if (response.toString() == 'true') {
+      MaterialPageRoute route = MaterialPageRoute(
+        builder: (context) => Home(
+          orderUserModel: orderUserModel,
+          nameShop: nameShop,
+          distance: distance,
+          transport: transport,
+        ),
+      );
+      Navigator.pushAndRemoveUntil(context, route, (route) => false);
+    }
+  }
 
   Widget showSumFood() => Row(
         children: <Widget>[
@@ -211,7 +340,8 @@ class _DetailOrderState extends State<DetailOrder> {
           ),
           Expanded(
             flex: 1,
-            child: Container(margin: EdgeInsets.only(right: 5.0),
+            child: Container(
+              margin: EdgeInsets.only(right: 5.0),
               decoration: BoxDecoration(color: MyStyle().dartColor),
               child: Column(
                 mainAxisSize: MainAxisSize.min,

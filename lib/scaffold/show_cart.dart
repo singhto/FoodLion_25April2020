@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:foodlion/models/delivery_model.dart';
 import 'package:foodlion/models/order_model.dart';
 import 'package:foodlion/models/user_model.dart';
 import 'package:foodlion/models/user_shop_model.dart';
@@ -139,8 +140,6 @@ class _ShowCartState extends State<ShowCart> {
     return result;
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -239,23 +238,36 @@ class _ShowCartState extends State<ShowCart> {
       amountFoods.add(model.amountFood);
     }
 
-    // print(
-    //     'idUser = ${userModel.id}, idShop = ${idShopOnSQLites[0]}, dateTime = $dateTime');
-    // print('idFoods = ${idFoods.toString()}');
-    // print('amountFoods = ${amountFoods.toString()}');
-
     String url =
         'http://movehubs.com/app/addOrder.php?isAdd=true&idUser=${userModel.id}&idShop=${idShopOnSQLites[0]}&DateTime=$dateTime&idFoods=${idFoods.toString()}&amountFoods=${amountFoods.toString()}';
 
     Response response = await Dio().get(url);
     if (response.toString() == 'true') {
       print('Success Order');
-      await SQLiteHelper()
-          .deleteSQLiteAll()
-          .then((value) => Navigator.of(context).pop());
+      // notiToRider();
+      await SQLiteHelper().deleteSQLiteAll().then((value) {
+        notiToRider();
+        Navigator.of(context).pop();
+      });
     } else {
       normalDialog(context, 'มีความผิดปกติ',
           'กรุณาทิ้งไว้สักครู่ แล้วค่อย Confirm Order ใหม่ คะ');
+    }
+  }
+
+  Future<Null> notiToRider() async {
+    String urlGetAllOrderStatus0 = 'http://movehubs.com/app/getAllRider.php';
+    Response response = await Dio().get(urlGetAllOrderStatus0);
+    // print('Res ====>>> $response');
+    var result = json.decode(response.data);
+    for (var map in result) {
+      // print('map ##########>>>>>>> $map');
+      DelivaryModel delivaryModel = DelivaryModel.fromJson(map);
+      // print('Sent Token to ===>> ${delivaryModel.token}');
+      if (delivaryModel.token.isNotEmpty) {
+         print('Sent Token to in aaaaa ===>> ${delivaryModel.token}');
+         MyAPI().notificationAPI(delivaryModel.token, 'มีรายการสั่งอาหารจาก Send', 'ลูกค้า Send สั่งอาหารครับ พี่ Rider');
+      }
     }
   }
 

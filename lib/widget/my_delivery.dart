@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/order_user_model.dart';
 import 'package:foodlion/models/user_model.dart';
 import 'package:foodlion/models/user_shop_model.dart';
 import 'package:foodlion/scaffold/detailOrder.dart';
+import 'package:foodlion/scaffold/home.dart';
 import 'package:foodlion/utility/find_token.dart';
 import 'package:foodlion/utility/my_api.dart';
 import 'package:foodlion/utility/my_style.dart';
@@ -29,13 +31,39 @@ class _MyDeliveryState extends State<MyDelivery> {
   @override
   void initState() {
     super.initState();
+    aboutNotification();
     updateToken();
     readOrder();
+  }
+
+  Future<Null> aboutNotification() async {
+    FirebaseMessaging firebaseMessaging = FirebaseMessaging();
+    firebaseMessaging.configure(
+      onLaunch: (message) {
+        print('onLaunch ==> $message');
+      },
+      onMessage: (message) {
+        // ขณะเปิดแอพอยู่
+        print('onMessage ==> $message');
+         normalToast('มี รายการอาหารสั่งเข้ามา คะ');
+         readOrder();
+      },
+      onResume: (message) {
+        // ปิดเครื่อง หรือ หน้าจอ
+        print('onResume ==> $message');
+        readOrder();
+      },
+      onBackgroundMessage: (message) {
+        print('onBackgroundMessage ==> $message');
+      },
+    );
   }
 
   Future<Null> updateToken() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     idRider = preferences.getString('id');
+    int distance = preferences.getInt('distance');
+    int transport = preferences.getInt('transport');
     String token = await findToken();
 
     String url =
@@ -44,9 +72,41 @@ class _MyDeliveryState extends State<MyDelivery> {
     if (response.toString() == 'true') {
       normalToast('อัพเดทตำแหน่งใหม่ สำเร็จ');
     }
+
+    String urlGetOrderWhereIdStatus =
+        'http://movehubs.com/app/getOrderWhereIdRiderStatus.php?isAdd=true&Success=$idRider';
+    Response response2 = await Dio().get(urlGetOrderWhereIdStatus);
+    print('res2 ##########>>>>>>>>> $response2');
+
+    if (response2.toString() != 'null') {
+      var result = json.decode(response2.data);
+      for (var map in result) {
+        OrderUserModel orderUserModel = OrderUserModel.fromJson(map);
+        String nameShop =
+            await MyAPI().findNameShopWhere(orderUserModel.idShop);
+        // int distance = 1234;
+        // int transport = 4321;
+
+        MaterialPageRoute route = MaterialPageRoute(
+          builder: (context) => Home(
+            orderUserModel: orderUserModel,
+            nameShop: nameShop,
+            distance: distance,
+            transport: transport,
+          ),
+        );Navigator.pushAndRemoveUntil(context, route, (route) => false);
+      }
+    }
   }
 
   Future<void> readOrder() async {
+    if (orderUserModels.length != 0) {
+      orderUserModels.clear();
+      nameShops.clear();
+      distances.clear();
+      transports.clear();
+    }
+
     String url = 'http://movehubs.com/app/getOrderWhereStatus0.php?isAdd=true';
     Response response = await Dio().get(url);
     var result = json.decode(response.data);
@@ -85,7 +145,8 @@ class _MyDeliveryState extends State<MyDelivery> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: orderUserModels.length == 0 ? showNoOrder() : showContent());
+    return Scaffold(
+        body: orderUserModels.length == 0 ? showNoOrder() : showContent());
   }
 
   ListView showContent() {
@@ -94,7 +155,7 @@ class _MyDeliveryState extends State<MyDelivery> {
       itemBuilder: (value, index) => GestureDetector(
         onTap: () => rountToDetailOrder(index),
         child: Card(
-          color: index % 2 == 0 ? Colors.orange.shade100 : Colors.white,
+          color: index % 2 == 0 ? Colors.grey.shade300 : Colors.white,
           child: Column(
             children: <Widget>[
               MyStyle().showTitle(nameShops[index]),
@@ -126,13 +187,14 @@ class _MyDeliveryState extends State<MyDelivery> {
 
   rountToDetailOrder(int index) {
     MaterialPageRoute route = MaterialPageRoute(
-        builder: (value) => DetailOrder(
-              orderUserModel: orderUserModels[index],
-              nameShop: nameShops[index],
-              distance: distances[index],
-              transport: transports[index],
-            ));
-    Navigator.push(context, route);
+      builder: (value) => DetailOrder(
+        orderUserModel: orderUserModels[index],
+        nameShop: nameShops[index],
+        distance: distances[index],
+        transport: transports[index],
+      ),
+    );
+    Navigator.push(context, route).then((value) => readOrder());
   }
 
   Center showNoOrder() {

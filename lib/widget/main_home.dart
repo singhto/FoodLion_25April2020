@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/banner_model.dart';
 import 'package:foodlion/models/order_model.dart';
@@ -10,6 +11,7 @@ import 'package:foodlion/models/user_shop_model.dart';
 import 'package:foodlion/scaffold/home.dart';
 import 'package:foodlion/scaffold/show_cart.dart';
 import 'package:foodlion/utility/find_token.dart';
+import 'package:foodlion/utility/my_api.dart';
 import 'package:foodlion/utility/my_constant.dart';
 import 'package:foodlion/utility/my_style.dart';
 import 'package:foodlion/utility/normal_toast.dart';
@@ -37,11 +39,34 @@ class _MainHomeState extends State<MainHome> {
   void initState() {
     super.initState();
 
+    aboutNotification();
     editToken();
     readBanner();
     readShopThread();
     checkAmount();
     findUser();
+  }
+
+  Future<Null> aboutNotification() async {
+    FirebaseMessaging firebaseMessaging = FirebaseMessaging();
+    firebaseMessaging.configure(
+      onLaunch: (message) {
+        print('onLaunch ==> $message');
+      },
+      onMessage: (message) {
+        // ขณะเปิดแอพอยู่
+        print('onMessage ==> $message');
+         normalToast('มี Notification คะ');
+      },
+      onResume: (message) {
+        // ปิดเครื่อง หรือ หน้าจอ
+        print('onResume ==> $message');
+        routeToShowOrder();
+      },
+      onBackgroundMessage: (message) {
+        print('onBackgroundMessage ==> $message');
+      },
+    );
   }
 
   Future<Null> findUser() async {
@@ -270,12 +295,16 @@ class _MainHomeState extends State<MainHome> {
       ),
       onTap: () {
         Navigator.of(context).pop();
-        MaterialPageRoute materialPageRoute = MaterialPageRoute(
-          builder: (context) => ShowOrderUser(),
-        );
-        Navigator.push(context, materialPageRoute);
+        routeToShowOrder();
       },
     );
+  }
+
+  void routeToShowOrder() {
+    MaterialPageRoute materialPageRoute = MaterialPageRoute(
+      builder: (context) => ShowOrderUser(),
+    );
+    Navigator.push(context, materialPageRoute);
   }
 
   Widget menuShowCart() {

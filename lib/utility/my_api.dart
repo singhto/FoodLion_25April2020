@@ -2,12 +2,44 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:foodlion/models/food_model.dart';
 import 'package:foodlion/models/user_model.dart';
 import 'package:foodlion/models/user_shop_model.dart';
 
+import 'normal_toast.dart';
+
 class MyAPI {
-  
+  Future<Null> notificationAPI(String token, String title, String body) async {
+    String url =
+        'http://movehubs.com/app/apiNotification.php?isAdd=true&token=$token&title=$title&body=$body';
+    try {
+      Response response = await Dio().get(url);
+      print('resNoti ===>> $response');
+    } catch (e) {}
+  }
+
+  Future<Null> aboutNotification() async {
+    FirebaseMessaging firebaseMessaging = FirebaseMessaging();
+    firebaseMessaging.configure(
+      onLaunch: (message) {
+        print('onLaunch ==> $message');
+      },
+      onMessage: (message) {
+        // ขณะเปิดแอพอยู่
+        print('onMessage ==> $message');
+         normalToast('มี Notification คะ');
+      },
+      onResume: (message) {
+        // ปิดเครื่อง หรือ หน้าจอ
+        print('onResume ==> $message');
+      },
+      onBackgroundMessage: (message) {
+        print('onBackgroundMessage ==> $message');
+      },
+    );
+  }
+
   int checkTransport(int distance) {
     int transport = 0;
     if (distance <= 5) {
@@ -56,7 +88,7 @@ class MyAPI {
     return myMap;
   }
 
-  Future<UserModel> findDetailUserWhereId(String id)async{
+  Future<UserModel> findDetailUserWhereId(String id) async {
     UserModel userModel;
     String url = 'http://movehubs.com/app/getUserWhereId.php?isAdd=true&id=$id';
     Response response = await Dio().get(url);
@@ -67,11 +99,12 @@ class MyAPI {
     return userModel;
   }
 
-  Future<UserShopModel> findDetailShopWhereId(String idShop)async{
+  Future<UserShopModel> findDetailShopWhereId(String idShop) async {
     UserShopModel userShopModel;
-    String url = 'http://movehubs.com/app/getUserShopWhereId.php?isAdd=true&id=$idShop';
+    String url =
+        'http://movehubs.com/app/getUserShopWhereId.php?isAdd=true&id=$idShop';
     Response response = await Dio().get(url);
-    var result =  json.decode(response.data);
+    var result = json.decode(response.data);
     for (var map in result) {
       userShopModel = UserShopModel.fromJson(map);
     }
