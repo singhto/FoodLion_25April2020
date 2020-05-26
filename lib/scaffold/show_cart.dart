@@ -232,6 +232,10 @@ class _ShowCartState extends State<ShowCart> {
     DateTime dateTime = DateTime.now();
     List<String> idFoods = List();
     List<String> amountFoods = List();
+    String tokenShop;
+
+    UserShopModel userShopModel = await MyAPI().findDetailShopWhereId(idShopOnSQLites[0].toString());
+    tokenShop = userShopModel.token;
 
     for (var model in orderModels) {
       idFoods.add(model.idFood);
@@ -244,9 +248,11 @@ class _ShowCartState extends State<ShowCart> {
     Response response = await Dio().get(url);
     if (response.toString() == 'true') {
       print('Success Order');
-      // notiToRider();
+      
       await SQLiteHelper().deleteSQLiteAll().then((value) {
-        notiToRider();
+       
+        MyAPI().notificationAPI(tokenShop, 'มีรายการอาหาร จาก Send', 'มีรายการอาหารสั่งมา คะ') ;
+        // notiToRider();
         Navigator.of(context).pop();
       });
     } else {
@@ -255,18 +261,20 @@ class _ShowCartState extends State<ShowCart> {
     }
   }
 
+  
+
   Future<Null> notiToRider() async {
     String urlGetAllOrderStatus0 = 'http://movehubs.com/app/getAllRider.php';
     Response response = await Dio().get(urlGetAllOrderStatus0);
-    // print('Res ====>>> $response');
+
     var result = json.decode(response.data);
     for (var map in result) {
-      // print('map ##########>>>>>>> $map');
       DelivaryModel delivaryModel = DelivaryModel.fromJson(map);
-      // print('Sent Token to ===>> ${delivaryModel.token}');
+
       if (delivaryModel.token.isNotEmpty) {
-         print('Sent Token to in aaaaa ===>> ${delivaryModel.token}');
-         MyAPI().notificationAPI(delivaryModel.token, 'มีรายการสั่งอาหารจาก Send', 'ลูกค้า Send สั่งอาหารครับ พี่ Rider');
+        // print('Sent Token to in aaaaa ===>> ${delivaryModel.token}');
+        MyAPI().notificationAPI(delivaryModel.token,
+            'มีรายการสั่งอาหารจาก Send', 'ลูกค้า Send สั่งอาหารครับ พี่ Rider');
       }
     }
   }

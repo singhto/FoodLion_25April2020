@@ -1,6 +1,6 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/food_model.dart';
 import 'package:foodlion/models/order_user_model.dart';
@@ -29,13 +29,51 @@ class _OrderShopState extends State<OrderShop> {
   @override
   void initState() {
     super.initState();
-    updateTokenAndOrder();
+
+    aboutNotification();
+    updateToken();
+    readOrder();
   }
 
-  Future<Null> updateTokenAndOrder() async {
+  Future<Null> aboutNotification() async {
+    FirebaseMessaging firebaseMessaging = FirebaseMessaging();
+    firebaseMessaging.configure(
+      onLaunch: (message) {
+        print('onLaunch ==> $message');
+      },
+      onMessage: (message) {
+        // ขณะเปิดแอพอยู่
+        print('onMessage ==> $message');
+        normalToast('มี รายการอาหารสั่งเข้ามา คะ');
+        readOrder();
+      },
+      onResume: (message) {
+        // ปิดเครื่อง หรือ หน้าจอ
+        print('onResume ==> $message');
+        readOrder();
+      },
+      onBackgroundMessage: (message) {
+        print('onBackgroundMessage ==> $message');
+      },
+    );
+  }
+
+  Future<Null> updateToken() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     idShop = preferences.getString('id');
     String token = await findToken();
+
+    String url =
+        'http://movehubs.com/app/editTokenShopWhereId.php?isAdd=true&id=$idShop&Token=$token';
+    Response response = await Dio().get(url);
+    if (response.toString() == 'true') {
+      normalToast('อัพเดทตำแหน่งใหม่ สำเร็จ');
+    }
+  }
+
+  Future<Null> readOrder() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    idShop = preferences.getString('id');
 
     if (orderUserModels.length != 0) {
       orderUserModels.clear();
@@ -45,18 +83,11 @@ class _OrderShopState extends State<OrderShop> {
       totals.clear();
     }
 
-    String url =
-        'http://movehubs.com/app/editTokenShopWhereId.php?isAdd=true&id=$idShop&Token=$token';
-    Response response = await Dio().get(url);
-    if (response.toString() == 'true') {
-      normalToast('อัพเดทตำแหน่งใหม่ สำเร็จ');
-    }
-
     String urlOrder =
         'http://movehubs.com/app/getOrderWhereIdShopSuccess0.php?isAdd=true&idShop=$idShop';
     try {
       Response response = await Dio().get(urlOrder);
-      // print('res ==> $response');
+      print('res on readOrder ==> $response');
       var result = json.decode(response.data);
 
       for (var map in result) {
@@ -258,15 +289,14 @@ class _OrderShopState extends State<OrderShop> {
     showDialog(
       context: context,
       builder: (context) => SimpleDialog(
-        title:
-            Text('Rider มารับสินด้า ของคุณ ${nameUsers[index]} แล้วใช่ไหม ?'),
+        title: Text('รับ Order ของคุณ ${nameUsers[index]} ใช่ไหม ?'),
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               confirmButton(index),
               MyStyle().mySizeBox(),
-              cancelButton(),
+              cancelButton(index),
             ],
           ),
         ],
@@ -277,41 +307,49 @@ class _OrderShopState extends State<OrderShop> {
   OutlineButton confirmButton(int index) {
     return OutlineButton.icon(
       onPressed: () {
-        confirmSuccessShop(index);
+        editStatusByShop(index, 'ShopOrder');
         Navigator.pop(context);
       },
       icon: Icon(
         Icons.check,
         color: Colors.green,
       ),
-      label: Text('มารับแล้ว'),
+      label: Text('รับทำ Order'),
     );
   }
 
-  Future<Null> confirmSuccessShop(int index) async {
+  Future<Null> editStatusByShop(int index, String success) async {
     String idOrder = orderUserModels[index].id;
-    print('idOrder = $idOrder');
+    print('idOrder = $idOrder, Success = $success');
     String url =
-        'http://movehubs.com/app/editStatusShopOrderWhereId.php?isAdd=true&id=$idOrder';
+        'http://movehubs.com/app/editStatusShopOrderWhereId.php?isAdd=true&id=$idOrder&Success=$success';
+    // print('url = $url');
+
     await Dio().get(url).then(
-          (value) {
-            if (value.statusCode == 200) {
-              updateTokenAndOrder();
-            } else {
-              normalToast('กรุณา ลองใหม่ ระบบขัดข้อง คะ');
-            }
-          },
-        );
+      (value) {
+        print('value ##########>>> $value');
+        if (value.statusCode == 200) {
+          //Sent Notification All Rider
+          MyAPI().notiToRider();
+          readOrder();
+        } else {
+          normalToast('กรุณา ลองใหม่ ระบบขัดข้อง คะ');
+        }
+      },
+    );
   }
 
-  OutlineButton cancelButton() {
+  OutlineButton cancelButton(int index) {
     return OutlineButton.icon(
-      onPressed: () => Navigator.pop(context),
+      onPressed: () {
+        editStatusByShop(index, 'ShopCancel');
+        Navigator.pop(context);
+      },
       icon: Icon(
         Icons.clear,
         color: Colors.red,
       ),
-      label: Text('ยังไม่มารับ'),
+      label: Text('ไม่สะดวกรับ order'),
     );
   }
 }

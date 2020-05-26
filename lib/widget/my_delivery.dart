@@ -45,8 +45,8 @@ class _MyDeliveryState extends State<MyDelivery> {
       onMessage: (message) {
         // ขณะเปิดแอพอยู่
         print('onMessage ==> $message');
-         normalToast('มี รายการอาหารสั่งเข้ามา คะ');
-         readOrder();
+        normalToast('มี รายการอาหารสั่งเข้ามา คะ');
+        readOrder();
       },
       onResume: (message) {
         // ปิดเครื่อง หรือ หน้าจอ
@@ -94,18 +94,17 @@ class _MyDeliveryState extends State<MyDelivery> {
             distance: distance,
             transport: transport,
           ),
-        );Navigator.pushAndRemoveUntil(context, route, (route) => false);
+        );
+        Navigator.pushAndRemoveUntil(context, route, (route) => false);
       }
     }
   }
 
   Future<void> readOrder() async {
-    if (orderUserModels.length != 0) {
-      orderUserModels.clear();
-      nameShops.clear();
-      distances.clear();
-      transports.clear();
-    }
+    orderUserModels.clear();
+    nameShops.clear();
+    distances.clear();
+    transports.clear();
 
     String url = 'http://movehubs.com/app/getOrderWhereStatus0.php?isAdd=true';
     Response response = await Dio().get(url);
@@ -159,6 +158,16 @@ class _MyDeliveryState extends State<MyDelivery> {
           child: Column(
             children: <Widget>[
               MyStyle().showTitle(nameShops[index]),
+              Row(
+                children: <Widget>[
+                  Container(margin: EdgeInsets.only(left: 16.0),
+                    child: Text(
+                      orderUserModels[index].dateTime,
+                      style: MyStyle().h2Style,
+                    ),
+                  ),
+                ],
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[

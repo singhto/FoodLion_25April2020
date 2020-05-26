@@ -6,6 +6,8 @@ class UserShopModel {
   String urlShop;
   String lat;
   String lng;
+  String token;
+  String check;
 
   UserShopModel(
       {this.id,
@@ -14,7 +16,9 @@ class UserShopModel {
       this.password,
       this.urlShop,
       this.lat,
-      this.lng});
+      this.lng,
+      this.token,
+      this.check});
 
   UserShopModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -24,6 +28,8 @@ class UserShopModel {
     urlShop = json['UrlShop'];
     lat = json['Lat'];
     lng = json['Lng'];
+    token = json['Token'];
+    check = json['Check'];
   }
 
   Map<String, dynamic> toJson() {
@@ -35,6 +41,9 @@ class UserShopModel {
     data['UrlShop'] = this.urlShop;
     data['Lat'] = this.lat;
     data['Lng'] = this.lng;
+    data['Token'] = this.token;
+    data['Check'] = this.check;
     return data;
   }
 }
+

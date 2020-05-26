@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:foodlion/models/delivery_model.dart';
 import 'package:foodlion/models/food_model.dart';
 import 'package:foodlion/models/user_model.dart';
 import 'package:foodlion/models/user_shop_model.dart';
@@ -10,6 +11,10 @@ import 'package:foodlion/models/user_shop_model.dart';
 import 'normal_toast.dart';
 
 class MyAPI {
+
+
+
+
   Future<Null> notificationAPI(String token, String title, String body) async {
     String url =
         'http://movehubs.com/app/apiNotification.php?isAdd=true&token=$token&title=$title&body=$body';
@@ -17,6 +22,22 @@ class MyAPI {
       Response response = await Dio().get(url);
       print('resNoti ===>> $response');
     } catch (e) {}
+  }
+
+  Future<Null> notiToRider() async {
+    String urlGetAllOrderStatus0 = 'http://movehubs.com/app/getAllRider.php';
+    Response response = await Dio().get(urlGetAllOrderStatus0);
+
+    var result = json.decode(response.data);
+    for (var map in result) {
+      DelivaryModel delivaryModel = DelivaryModel.fromJson(map);
+
+      if (delivaryModel.token.isNotEmpty) {
+        // print('Sent Token to in aaaaa ===>> ${delivaryModel.token}');
+        MyAPI().notificationAPI(delivaryModel.token,
+            'มีรายการสั่งอาหารจาก Send', 'ลูกค้า Send สั่งอาหารครับ พี่ Rider');
+      }
+    }
   }
 
   Future<Null> aboutNotification() async {
@@ -40,6 +61,7 @@ class MyAPI {
     );
   }
 
+// นีคือ Function ในการคำนวนค่าส่งอาหาร
   int checkTransport(int distance) {
     int transport = 0;
     if (distance <= 5) {
