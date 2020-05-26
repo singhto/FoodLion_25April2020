@@ -327,9 +327,12 @@ class _OrderShopState extends State<OrderShop> {
 
     await Dio().get(url).then(
       (value) {
+        
         print('value ##########>>> $value');
+
         if (value.statusCode == 200) {
           //Sent Notification All Rider
+          
           MyAPI().notiToRider();
           readOrder();
         } else {

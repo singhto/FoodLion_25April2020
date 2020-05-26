@@ -106,7 +106,8 @@ class _MyDeliveryState extends State<MyDelivery> {
     distances.clear();
     transports.clear();
 
-    String url = 'http://movehubs.com/app/getOrderWhereStatus0.php?isAdd=true';
+    // String url = 'http://movehubs.com/app/getOrderWhereStatus0.php?isAdd=true';
+    String url = 'http://movehubs.com/app/getOrderWhereSuccess.php?isAdd=true&Success=ShopOrder';
     Response response = await Dio().get(url);
     var result = json.decode(response.data);
     // print('result ==>> ${result.toString()}');

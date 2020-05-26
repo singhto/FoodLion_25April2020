@@ -11,7 +11,6 @@ import 'package:foodlion/models/user_shop_model.dart';
 import 'package:foodlion/scaffold/home.dart';
 import 'package:foodlion/scaffold/show_cart.dart';
 import 'package:foodlion/utility/find_token.dart';
-import 'package:foodlion/utility/my_api.dart';
 import 'package:foodlion/utility/my_constant.dart';
 import 'package:foodlion/utility/my_style.dart';
 import 'package:foodlion/utility/normal_toast.dart';

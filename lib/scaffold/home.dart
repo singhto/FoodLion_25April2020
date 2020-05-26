@@ -4,6 +4,7 @@ import 'package:foodlion/scaffold/detailOrder.dart';
 import 'package:foodlion/scaffold/show_cart.dart';
 import 'package:foodlion/widget/add_my_food.dart';
 import 'package:foodlion/widget/guest.dart';
+import 'package:foodlion/widget/info_shop.dart';
 import 'package:foodlion/widget/main_home.dart';
 import 'package:foodlion/widget/my_delivery.dart';
 import 'package:foodlion/widget/my_food.dart';
@@ -16,6 +17,7 @@ import 'package:foodlion/widget/show_order_user.dart';
 import 'package:foodlion/widget/signin_delivery.dart';
 import 'package:foodlion/widget/signin_shop.dart';
 import 'package:foodlion/widget/signin_user.dart';
+import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utility/my_style.dart';
@@ -43,11 +45,12 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   // Field
-  Widget cuttentWidget = Guest();
+  Widget cuttentWidget = MyStyle().showProgress();
   String nameLogin, avatar, modeLogin, loginType, token, nameShop;
   bool statusLogin = false; //false => no login
   int amount = 0, distance, transport;
   OrderUserModel orderUserModel;
+  double lat, lng;
 
   // Method
   @override
@@ -61,22 +64,36 @@ class _HomeState extends State<Home> {
 
     checkWidget();
     checkLogin();
+    findLatLng();
+  }
+
+  Future<Null> findLatLng()async{
+    LocationData locationData = await findLocationData();
+    setState(() {
+      lat = locationData.latitude;
+      lng = locationData.longitude;
+      print('lat ==>> $lat, lng ==>> $lng');
+      cuttentWidget = Guest(lat: lat,lng: lng,);
+    });
+  }
+
+  Future<LocationData> findLocationData()async{
+    Location location = Location();
+    try {
+      return location.getLocation();
+    } catch (e) {
+      return null;
+    }
   }
 
   void checkWidget() {
     Widget myWidget = widget.currentWidget;
 
-    // if (orderUserModel != null) {
-    //   print('orderUserModel != null');
-    //   MaterialPageRoute route = MaterialPageRoute(builder: (context) => Home(),);
-    //   Navigator.pushAndRemoveUntil(context, route, (route) => false);
-    // }
-
     if (myWidget != null) {
       setState(() {
         cuttentWidget = myWidget;
       });
-    }
+    } 
   }
 
   Future<void> checkLogin() async {
@@ -167,6 +184,7 @@ class _HomeState extends State<Home> {
       children: <Widget>[
         showHeadShop(),
         menuOrderShop(),
+        menuInfoShop(),
         menuMyFoodShop(),
         menuAddMyFood(),
         menuSignOut(),
@@ -272,6 +290,31 @@ class _HomeState extends State<Home> {
       ),
       onTap: () {
         Navigator.of(context).pop();
+      },
+    );
+  }
+
+   Widget menuInfoShop() {
+    return ListTile(
+      leading: Icon(
+        Icons.home,
+        size: 36.0,
+        color: MyStyle().dartColor,
+      ),
+      title: Text(
+        'รายละเอียดร้าน',
+        style: MyStyle().h2Style,
+      ),
+      subtitle: Text(
+        'แสดงรายละเอียดของร้าน',
+        style: MyStyle().h3StylePrimary,
+      ),
+      onTap: () {
+        setState(() {
+          cuttentWidget = InfoShop();
+        });
+        Navigator.of(context).pop();
+        
       },
     );
   }

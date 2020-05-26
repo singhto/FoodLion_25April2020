@@ -15,7 +15,7 @@ class ShowOrderUser extends StatefulWidget {
 
 class _ShowOrderUserState extends State<ShowOrderUser> {
   // Field
-  bool status;
+  bool status, shopBool = true, riderBool = true, userBool = true;
   Widget currentWidget;
   List<OrderUserModel> orderUserModels = List();
   List<String> nameShops = List();
@@ -34,7 +34,7 @@ class _ShowOrderUserState extends State<ShowOrderUser> {
     String idUser = preferences.getString('id');
 
     String url =
-        'http://movehubs.com/app/getOrderWhereIdUserStatus.php?isAdd=true&idUser=$idUser&Success=0';
+        'http://movehubs.com/app/getOrderWhereIdUser.php?isAdd=true&idUser=$idUser';
     Response response = await Dio().get(url);
     // print('res ===>> $response');
 
@@ -104,8 +104,99 @@ class _ShowOrderUserState extends State<ShowOrderUser> {
             showDateTime(index),
             headTitle(),
             showListViewOrder(index),
+            showTotalPrice(index),
+            showTotalDelivery(index),
+            showSumTotal(index),
+            showProcessOrder(index),
           ],
         ),
+      );
+
+  Widget showTotalPrice(int index) => Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.only(right: 16.0),
+            child: MyStyle().showTitleH2Dark(
+                'ราคาอาหาร ${orderUserModels[index].totalPrice} บาท'),
+          ),
+        ],
+      );
+
+  Widget showTotalDelivery(int index) => Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.only(right: 16.0),
+            child: MyStyle().showTitleH2Primary(
+                'ค่าขนส่ง ${orderUserModels[index].totalDelivery} บาท'),
+          ),
+        ],
+      );
+
+  Widget showSumTotal(int index) => Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.only(right: 16.0),
+            child: MyStyle().showTitleH2DartBold(
+                'ราคารวม ${orderUserModels[index].sumTotal} บาท'),
+          ),
+        ],
+      );
+
+  Widget showProcessOrder(int index) => Row(
+        // mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                  color: orderUserModels[index].success == 'ShopOrder' ||
+                          orderUserModels[index].success == 'RiderOrder' ||
+                          orderUserModels[index].success == 'Success'
+                      ? Colors.pink.shade300
+                      : Colors.grey.shade300),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text('กำลังปลุงอาหาร'),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                  color: orderUserModels[index].success == 'RiderOrder' ||
+                          orderUserModels[index].success == 'Success'
+                      ? Colors.orange.shade400
+                      : Colors.grey.shade400),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text('กำลังไปส่ง'),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                  color: orderUserModels[index].success == 'Success'
+                      ? Colors.green.shade800
+                      : Colors.grey.shade700),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    'สำเร็จ',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       );
 
   Widget headTitle() => Row(
@@ -176,7 +267,9 @@ class _ShowOrderUserState extends State<ShowOrderUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('รายการสั่งอาหาร'),),
+      appBar: AppBar(
+        title: Text('รายการสั่งอาหาร'),
+      ),
       body: currentWidget == null ? MyStyle().showProgress() : currentWidget,
     );
   }

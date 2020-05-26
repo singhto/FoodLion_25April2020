@@ -7,6 +7,9 @@ class OrderUserModel {
   String amountFoods;
   String idDelivery;
   String success;
+  String totalDelivery;
+  String totalPrice;
+  String sumTotal;
 
   OrderUserModel(
       {this.id,
@@ -16,7 +19,10 @@ class OrderUserModel {
       this.idFoods,
       this.amountFoods,
       this.idDelivery,
-      this.success});
+      this.success,
+      this.totalDelivery,
+      this.totalPrice,
+      this.sumTotal});
 
   OrderUserModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -27,6 +33,9 @@ class OrderUserModel {
     amountFoods = json['amountFoods'];
     idDelivery = json['idDelivery'];
     success = json['Success'];
+    totalDelivery = json['totalDelivery'];
+    totalPrice = json['totalPrice'];
+    sumTotal = json['sumTotal'];
   }
 
   Map<String, dynamic> toJson() {
@@ -42,4 +51,3 @@ class OrderUserModel {
     return data;
   }
 }
-

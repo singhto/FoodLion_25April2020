@@ -242,8 +242,7 @@ class _ShowCartState extends State<ShowCart> {
       amountFoods.add(model.amountFood);
     }
 
-    String url =
-        'http://movehubs.com/app/addOrder.php?isAdd=true&idUser=${userModel.id}&idShop=${idShopOnSQLites[0]}&DateTime=$dateTime&idFoods=${idFoods.toString()}&amountFoods=${amountFoods.toString()}';
+    String url = 'http://movehubs.com/app/addOrder.php?isAdd=true&idUser=${userModel.id}&idShop=${idShopOnSQLites[0]}&DateTime=$dateTime&idFoods=${idFoods.toString()}&amountFoods=${amountFoods.toString()}&totalDelivery=$totalDelivery&totalPrice=$totalPrice&sumTotal=$sumTotal';
 
     Response response = await Dio().get(url);
     if (response.toString() == 'true') {
@@ -307,7 +306,7 @@ class _ShowCartState extends State<ShowCart> {
           child: Column(
             children: <Widget>[
               showSum(
-                  'ค่าขอส่ง', totalDelivery.toString(), MyStyle().lightColor),
+                  'ค่าขนส่ง', totalDelivery.toString(), MyStyle().lightColor),
               showSum(
                   'ค่าอาหาร', totalPrice.toString(), MyStyle().primaryColor),
               showSum('รวมราคา', sumTotal.toString(), MyStyle().dartColor),

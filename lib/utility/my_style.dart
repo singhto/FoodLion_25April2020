@@ -151,6 +151,45 @@ class MyStyle {
     );
   }
 
+  Widget showTitleH2Dark(String string) {
+    return Row(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.only(left: 8.0),
+          child: Text(
+            string,
+            style: TextStyle(
+              fontFamily: 'ThaiSansNeue',
+              color: Color.fromARGB(0xff, 0xb7, 0x4a, 0x02),
+              // fontWeight: FontWeight.bold,
+              fontSize: 18.0,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget showTitleH2DartBold(String string) {
+    return Row(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.only(left: 8.0),
+          child: Text(
+            string,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontFamily: 'ThaiSansNeue',
+              color: Color.fromARGB(0xff, 0xb7, 0x4a, 0x02),
+              // fontWeight: FontWeight.bold,
+              fontSize: 18.0,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget showProgress() {
     return Center(
       child: CircularProgressIndicator(),
