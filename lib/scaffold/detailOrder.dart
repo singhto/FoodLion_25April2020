@@ -45,11 +45,13 @@ class _DetailOrderState extends State<DetailOrder> {
   void initState() {
     super.initState();
 
-    setState(() {
+    setState(() { 
+
       orderUserModel = widget.orderUserModel;
       nameShop = widget.nameShop;
       distance = widget.distance;
       transport = widget.transport;
+
       findDetailShopAnUser();
       findOrder();
       findAmound();
@@ -122,6 +124,7 @@ class _DetailOrderState extends State<DetailOrder> {
   }
 
   Future<void> findDetailShopAnUser() async {
+    
     UserShopModel userShopModel =
         await MyAPI().findDetailShopWhereId(orderUserModel.idShop);
 

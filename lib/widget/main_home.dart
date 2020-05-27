@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -249,6 +250,8 @@ class _MainHomeState extends State<MainHome> {
     try {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       preferences.clear();
+
+      // exit(0);
 
       MaterialPageRoute route = MaterialPageRoute(builder: (value) => Home());
       Navigator.of(context).pushAndRemoveUntil(route, (value) => false);

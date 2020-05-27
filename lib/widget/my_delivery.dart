@@ -110,7 +110,7 @@ class _MyDeliveryState extends State<MyDelivery> {
     String url = 'http://movehubs.com/app/getOrderWhereSuccess.php?isAdd=true&Success=ShopOrder';
     Response response = await Dio().get(url);
     var result = json.decode(response.data);
-    // print('result ==>> ${result.toString()}');
+    print('result ==>> ${result.toString()}');
 
     for (var map in result) {
       OrderUserModel orderUserModel = OrderUserModel.fromJson(map);

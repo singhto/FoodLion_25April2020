@@ -14,6 +14,7 @@ import 'package:foodlion/utility/my_style.dart';
 import 'package:foodlion/utility/normal_toast.dart';
 import 'package:foodlion/utility/sqlite_helper.dart';
 import 'package:intl/intl.dart';
+import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'my_food.dart';
@@ -42,10 +43,39 @@ class _GuestState extends State<Guest> {
     lat = widget.lat;
     lng = widget.lng;
 
-    readBanner();
-    readShopThread();
-    checkAmount();
-    findUser();
+    if (lat == null) {
+      findLatLng();
+    }
+
+    findLatLng();
+  }
+
+  Future<Null> findLatLng() async {
+    LocationData locationData = await findLocationData();
+    setState(() {
+      lat = locationData.latitude;
+      lng = locationData.longitude;
+      print('lat ==>> $lat, lng ==>> $lng');
+
+      readBanner();
+      readShopThread();
+      checkAmount();
+      findUser();
+
+      // cuttentWidget = Guest(
+      //   lat: lat,
+      //   lng: lng,
+      // );
+    });
+  }
+
+  Future<LocationData> findLocationData() async {
+    Location location = Location();
+    try {
+      return location.getLocation();
+    } catch (e) {
+      return null;
+    }
   }
 
   Widget showImageShop(UserShopModel model) {
@@ -66,9 +96,6 @@ class _GuestState extends State<Guest> {
       );
 
   Widget createCard(UserShopModel model, String distance) {
-
-
-
     return GestureDetector(
       onTap: () {
         print('You Click ${model.id}');
@@ -105,7 +132,7 @@ class _GuestState extends State<Guest> {
 
       for (var map in result) {
         UserShopModel model = UserShopModel.fromJson(map);
-      
+
         double distance = MyAPI().calculateDistance(
           lat,
           lng,
@@ -116,8 +143,8 @@ class _GuestState extends State<Guest> {
         var myFormat = NumberFormat('##0.0#', 'en_US');
         // distance = myFormat.format(distance) as double;
 
-        print('distance ====>>>> ${myFormat.format(distance)}');
-       
+        // print('distance ====>>>> ${myFormat.format(distance)}');
+
         setState(() {
           userShopModels.add(model);
           showWidgets.add(createCard(model, '${myFormat.format(distance)}'));

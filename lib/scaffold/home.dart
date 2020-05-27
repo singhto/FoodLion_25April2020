@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:foodlion/models/order_user_model.dart';
 import 'package:foodlion/scaffold/detailOrder.dart';
+import 'package:foodlion/scaffold/rider_loged.dart';
 import 'package:foodlion/scaffold/show_cart.dart';
 import 'package:foodlion/widget/add_my_food.dart';
 import 'package:foodlion/widget/guest.dart';
@@ -62,22 +65,27 @@ class _HomeState extends State<Home> {
     distance = widget.distance;
     transport = widget.transport;
 
-    checkWidget();
-    checkLogin();
     findLatLng();
   }
 
-  Future<Null> findLatLng()async{
+  Future<Null> findLatLng() async {
     LocationData locationData = await findLocationData();
     setState(() {
       lat = locationData.latitude;
       lng = locationData.longitude;
       print('lat ==>> $lat, lng ==>> $lng');
-      cuttentWidget = Guest(lat: lat,lng: lng,);
+
+      checkWidget();
+      checkLogin();
+
+      // cuttentWidget = Guest(
+      //   lat: lat,
+      //   lng: lng,
+      // );
     });
   }
 
-  Future<LocationData> findLocationData()async{
+  Future<LocationData> findLocationData() async {
     Location location = Location();
     try {
       return location.getLocation();
@@ -90,10 +98,11 @@ class _HomeState extends State<Home> {
     Widget myWidget = widget.currentWidget;
 
     if (myWidget != null) {
+      print('Widget NotNull');
       setState(() {
         cuttentWidget = myWidget;
       });
-    } 
+    }
   }
 
   Future<void> checkLogin() async {
@@ -117,7 +126,9 @@ class _HomeState extends State<Home> {
         );
         Navigator.pushAndRemoveUntil(context, route, (route) => false);
       } else if (modeLogin == 'Dev') {
+        // print('Dev Work nameLogin == $nameLogin ###############');
         if (!(nameLogin == null || nameLogin.isEmpty)) {
+          // print('Dev Work nameShop = $nameShop ###############');
           if (nameShop != null) {
             MaterialPageRoute route = MaterialPageRoute(
               builder: (context) => DetailOrder(
@@ -130,12 +141,23 @@ class _HomeState extends State<Home> {
             Navigator.pushAndRemoveUntil(context, route, (route) => false);
           } else {
             setState(() {
+              print('Dev Work ###############');
+
+              // MaterialPageRoute route = MaterialPageRoute(
+              //   builder: (context) => RiderLogin(),
+              // );
+              // Navigator.pushAndRemoveUntil(context, route, (route) => false);
+
               statusLogin = true;
               cuttentWidget = MyDelivery();
             });
           }
         }
-      } else {}
+      } else {
+        setState(() {
+          cuttentWidget = Guest();
+        });
+      }
     } catch (e) {}
   }
 
@@ -294,7 +316,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-   Widget menuInfoShop() {
+  Widget menuInfoShop() {
     return ListTile(
       leading: Icon(
         Icons.home,
@@ -314,7 +336,6 @@ class _HomeState extends State<Home> {
           cuttentWidget = InfoShop();
         });
         Navigator.of(context).pop();
-        
       },
     );
   }
@@ -405,7 +426,7 @@ class _HomeState extends State<Home> {
         style: MyStyle().h3StylePrimary,
       ),
       onTap: () {
-        Navigator.of(context).pop();
+        // Navigator.of(context).pop();
         signOutProcess();
       },
     );
@@ -415,6 +436,8 @@ class _HomeState extends State<Home> {
     try {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       preferences.clear();
+
+      // exit(0);
 
       MaterialPageRoute route = MaterialPageRoute(builder: (value) => Home());
       Navigator.of(context).pushAndRemoveUntil(route, (value) => false);
