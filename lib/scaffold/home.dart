@@ -518,11 +518,11 @@ class _HomeState extends State<Home> {
                   Navigator.of(context).pop();
                 },
                 icon: Icon(
-                  Icons.touch_app,
+                  Icons.camera_front,
                   color: MyStyle().primaryColor,
                 ),
                 label: Text(
-                  'เพื่อสั่งอาหาร',
+                  'สั่งอาหาร',
                   style: MyStyle().h2StylePrimary,
                 ),
               ),
@@ -547,12 +547,12 @@ class _HomeState extends State<Home> {
                   Navigator.of(context).pop();
                 },
                 icon: Icon(
-                  Icons.fastfood,
-                  color: MyStyle().primaryColor,
+                  Icons.store_mall_directory,
+                  color: Colors.pink.shade400,
                 ),
                 label: Text(
-                  'เพื่อขายอาหาร',
-                  style: MyStyle().h2StylePrimary,
+                  'ขายอาหาร',
+                  style: MyStyle().h5StylePrimary,
                 ),
               ),
             ],
@@ -577,11 +577,11 @@ class _HomeState extends State<Home> {
                 },
                 icon: Icon(
                   Icons.directions_bike,
-                  color: MyStyle().primaryColor,
+                  color: Colors.green,
                 ),
                 label: Text(
-                  'เพื่อส่งอาหาร',
-                  style: MyStyle().h2StylePrimary,
+                  'ส่งอาหาร',
+                  style: MyStyle().hStylePrimary,
                 ),
               ),
             ],

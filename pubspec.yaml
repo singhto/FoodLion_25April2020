@@ -34,7 +34,11 @@ dependencies:
   firebase_messaging: ^6.0.13
   fluttertoast: ^4.0.1
   intl: ^0.16.1
-  
+  flutter_launcher_icons: ^0.7.5
+
+flutter_icons:
+  android: true
+  image_path: "images/logo_1024.png"
 
 dev_dependencies:
   flutter_test:

@@ -30,19 +30,19 @@ class _SignDeliveryState extends State<SignDelivery> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              MyStyle().showLogo(),
+              MyStyle().showProfileDelivery(),
               MyStyle().mySizeBox(),
               TextField(
                 style: MyStyle().h2NormalStyle,
                 onChanged: (value) => user = value.trim(),
                 decoration: InputDecoration(
                   labelText: 'User :',
-                  labelStyle: MyStyle().h3StylePrimary,
+                  labelStyle: MyStyle().h3StylePrimaryDelivery,
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: MyStyle().primaryColor),
+                    borderSide: BorderSide(color: MyStyle().primaryColorDelivery),
                   ),
                   focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: MyStyle().dartColor)),
+                      borderSide: BorderSide(color: MyStyle().dartColorDeliver)),
                 ),
               ),
               SizedBox(
@@ -54,12 +54,12 @@ class _SignDeliveryState extends State<SignDelivery> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password :',
-                  labelStyle: MyStyle().h3StylePrimary,
+                  labelStyle: MyStyle().h3StylePrimaryDelivery,
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: MyStyle().primaryColor),
+                    borderSide: BorderSide(color: MyStyle().primaryColorDelivery),
                   ),
                   focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: MyStyle().dartColor)),
+                      borderSide: BorderSide(color: MyStyle().dartColorDeliver)),
                 ),
               ),
               SizedBox(
@@ -68,7 +68,7 @@ class _SignDeliveryState extends State<SignDelivery> {
               Container(
                 width: 250.0,
                 child: RaisedButton.icon(
-                  color: MyStyle().primaryColor,
+                  color: MyStyle().primaryColorDelivery,
                   onPressed: () {
                     if (user == null ||
                         user.isEmpty ||
@@ -140,7 +140,7 @@ class _SignDeliveryState extends State<SignDelivery> {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        MyStyle().showTitle('Sign In Type Delivery'),
+        MyStyle().showTitleDelivery('ส่งอาหาร'),
         showContent(),
       ],
     );

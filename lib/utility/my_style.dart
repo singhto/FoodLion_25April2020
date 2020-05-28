@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 class MyStyle {
   // Field
   Color primaryColor = Color.fromARGB(0xff, 0xef, 0x79, 0x36);
+  Color primaryColorDelivery = Colors.green;
+  Color primaryColorShop = Colors.pink;
   Color dartColor = Color.fromARGB(0xff, 0xb7, 0x4a, 0x02);
+  Color dartColorDeliver = Colors.green.shade200;
+  Color dartColorShop = Colors.pink.shade200;
   Color lightColor = Color.fromARGB(0xff, 0xff, 0xaa, 0x64);
 
   String font = 'ThaiSansNeue';
@@ -30,9 +34,39 @@ class MyStyle {
 
   Widget showLogo() {
     return Container(
-      height: 200.0,
+      height: 100.0,
       child: Image.asset('images/logo_1024.png'),
     );
+  }
+
+  Widget showProfileUser() {
+    return Container(
+        height: 200.0,
+        child: Icon(
+          Icons.camera_front,
+          size: 100,
+          color: Colors.orange.shade700,
+        ));
+  }
+
+  Widget showProfileShop() {
+    return Container(
+        height: 200.0,
+        child: Icon(
+          Icons.store_mall_directory,
+          size: 100,
+          color: Colors.pink.shade300,
+        ));
+  }
+
+  Widget showProfileDelivery() {
+    return Container(
+        height: 200.0,
+        child: Icon(
+          Icons.directions_bike,
+          size: 100,
+          color: Colors.green,
+        ));
   }
 
   Icon signInIcon = Icon(
@@ -58,6 +92,14 @@ class MyStyle {
     fontSize: 16.0,
     color: Color.fromARGB(0xff, 0xef, 0x79, 0x36),
   );
+
+    TextStyle h3StylePrimaryDelivery = TextStyle(
+    fontSize: 16.0,
+    color: Colors.green,
+  );
+
+  TextStyle h4StylePrimary =
+      TextStyle(fontSize: 16.0, color: Colors.pink.shade400);
 
   TextStyle h3StyleDark = TextStyle(
     fontWeight: FontWeight.bold,
@@ -92,6 +134,20 @@ class MyStyle {
     fontSize: 18.0,
   );
 
+    TextStyle h5StylePrimary = TextStyle(
+    fontFamily: 'ThaiSansNeue',
+    color: Colors.pink.shade400,
+    fontWeight: FontWeight.bold,
+    fontSize: 18.0,
+  );
+
+    TextStyle hStylePrimary = TextStyle(
+    fontFamily: 'ThaiSansNeue',
+    color: Colors.green,
+    fontWeight: FontWeight.bold,
+    fontSize: 18.0,
+  );
+
   TextStyle h1Style = TextStyle(
     fontFamily: 'ThaiSansNeue',
     color: Color.fromARGB(0xff, 0xb7, 0x4a, 0x02),
@@ -122,7 +178,45 @@ class MyStyle {
             string,
             style: TextStyle(
               fontFamily: 'ThaiSansNeue',
-              color: Color.fromARGB(0xff, 0xb7, 0x4a, 0x02),
+              color: Colors.orange.shade800,
+              fontWeight: FontWeight.bold,
+              fontSize: 24.0,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget showTitleDelivery(String string) {
+    return Row(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            string,
+            style: TextStyle(
+              fontFamily: 'ThaiSansNeue',
+              color: Colors.green,
+              fontWeight: FontWeight.bold,
+              fontSize: 24.0,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget showTitleShop(String string) {
+    return Row(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            string,
+            style: TextStyle(
+              fontFamily: 'ThaiSansNeue',
+              color: Colors.pink.shade300,
               fontWeight: FontWeight.bold,
               fontSize: 24.0,
             ),

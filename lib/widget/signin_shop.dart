@@ -28,19 +28,19 @@ class _SignInshopState extends State<SignInshop> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              MyStyle().showLogo(),
+              MyStyle().showProfileShop(),
               MyStyle().mySizeBox(),
               TextField(
                 style: MyStyle().h2NormalStyle,
                 onChanged: (value) => user = value.trim(),
                 decoration: InputDecoration(
                   labelText: 'User :',
-                  labelStyle: MyStyle().h3StylePrimary,
+                  labelStyle: MyStyle().h4StylePrimary,
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: MyStyle().primaryColor),
+                    borderSide: BorderSide(color: MyStyle().primaryColorShop),
                   ),
                   focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: MyStyle().dartColor)),
+                      borderSide: BorderSide(color: MyStyle().dartColorShop)),
                 ),
               ),
               SizedBox(
@@ -52,12 +52,12 @@ class _SignInshopState extends State<SignInshop> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password :',
-                  labelStyle: MyStyle().h3StylePrimary,
+                  labelStyle: MyStyle().h4StylePrimary,
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: MyStyle().primaryColor),
+                    borderSide: BorderSide(color: MyStyle().primaryColorShop),
                   ),
                   focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: MyStyle().dartColor)),
+                      borderSide: BorderSide(color: MyStyle().dartColorShop)),
                 ),
               ),
               SizedBox(
@@ -66,14 +66,14 @@ class _SignInshopState extends State<SignInshop> {
               Container(
                 width: 250.0,
                 child: RaisedButton.icon(
-                  color: MyStyle().primaryColor,
+                  color: Colors.pink.shade300,
                   onPressed: () {
                     if (user == null ||
                         user.isEmpty ||
                         password == null ||
                         password.isEmpty) {
                       normalDialog(
-                          context, 'Have Space', 'Please Fill Ever Blank');
+                          context, 'ไม่ได้กรอกข้อมูล', 'โปรด กรอกข้อมูลให้ครบทุกช่อง');
                     } else {
                       checkAuthen();
                     }
@@ -138,7 +138,7 @@ class _SignInshopState extends State<SignInshop> {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        MyStyle().showTitle('Sign In Type Shop'),
+        MyStyle().showTitleShop('สำหรับ ร้านค้า'),
         showContent(),
       ],
     );

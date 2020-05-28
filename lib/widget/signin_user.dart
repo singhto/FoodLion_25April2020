@@ -29,7 +29,7 @@ class _SingInUserState extends State<SingInUser> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              MyStyle().showLogo(),
+              MyStyle().showProfileUser(),
               MyStyle().mySizeBox(),
               TextField(
                 style: MyStyle().h2NormalStyle,
@@ -140,7 +140,7 @@ class _SingInUserState extends State<SingInUser> {
     return Scaffold(resizeToAvoidBottomPadding: true,
       body: Stack(
         children: <Widget>[
-          MyStyle().showTitle('Sign In Type User'),
+          MyStyle().showTitle('เข้าสู่ระบบเพื่อสั่งซื้ออาหาร'),
           showContent(),
         ],
       ),
