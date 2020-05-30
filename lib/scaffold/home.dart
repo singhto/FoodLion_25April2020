@@ -684,7 +684,7 @@ class _HomeState extends State<Home> {
     return UserAccountsDrawerHeader(
       decoration: BoxDecoration(
         image: DecorationImage(
-            image: AssetImage('images/bic4.png'), fit: BoxFit.cover),
+            image: AssetImage('images/bic4.gif'), fit: BoxFit.cover),
       ),
       currentAccountPicture: showLogo(),
       accountName: Text(

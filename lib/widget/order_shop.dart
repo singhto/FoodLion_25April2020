@@ -146,7 +146,7 @@ class _OrderShopState extends State<OrderShop> {
               ),
               MyStyle().mySizeBox(),
               Text(
-                'โปรดรอ สักครู่คะ ยังไม่มี รายการสั่ง',
+                'โปรดรอ ยังไม่มีรายการสั่งอาหารเข้ามา',
                 style: MyStyle().h2StyleWhite,
               ),
               MyStyle().mySizeBox(),
